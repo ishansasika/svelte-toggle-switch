@@ -1,7 +1,7 @@
-import App from './App.svelte'
+import Switch from './lib/Switch.svelte'
 
-const svelteSwitch = new App({
-  target: document.getElementById('app')
+const svelteSwitch = new Switch({
+  target: document.getElementById('switch')
 })
 
 export default svelteSwitch;
