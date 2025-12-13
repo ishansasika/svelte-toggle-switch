@@ -1,259 +1,692 @@
-<script>
+<script lang="ts">
+	// Core Props
+	export let value: boolean | string = false;
+	export let label: string = '';
+	export let design: 'inner' | 'slider' | 'modern' | 'ios' | 'material' | 'multi' = 'slider';
 
-    export let label;
-    export let design = 'inner label'
-    export let options = [];
-	export let fontSize = 16;
-	export let value = 'on';
+	// Multi-option props (for multi design)
+	export let options: string[] = [];
 
-    let checked = true;
-	const uniqueID = Math.floor(Math.random() * 100)
+	// Styling Props
+	export let size: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | number = 'md';
+	export let color: string = '#007AFF';
+	export let offColor: string = '#E5E7EB';
+	export let colorScheme: 'blue' | 'green' | 'red' | 'purple' | 'orange' | 'pink' | 'custom' = 'blue';
 
-    function handleClick(event){
-        const target = event.target
+	// State Props
+	export let disabled: boolean = false;
+	export let loading: boolean = false;
+	export let readonly: boolean = false;
 
-        const state = target.getAttribute('aria-checked')
+	// Icon Props
+	export let showIcons: boolean = false;
+	export let onIcon: string = '✓';
+	export let offIcon: string = '✕';
 
-        checked = state === 'true' ? false : true
+	// Animation Props
+	export let animationDuration: number = 300;
+	export let animationEasing: string = 'ease-in-out';
 
-        value = checked === true ? 'on' : 'off'
-    }
-	
-	  const slugify = (str = "") =>
-    str.toLowerCase().replace(/ /g, "-").replace(/\./g, "");
+	// Accessibility Props
+	export let ariaLabel: string = '';
+	export let ariaDescribedBy: string = '';
+	export let id: string = '';
 
+	// Advanced Props
+	export let labelPosition: 'left' | 'right' = 'right';
+	export let rounded: boolean = true;
+	export let shadow: boolean = false;
+	export let outline: boolean = false;
+
+	// Internal state
+	let checked: boolean = typeof value === 'boolean' ? value : value === 'on';
+	const uniqueID = id || `switch-${Math.floor(Math.random() * 1000000)}`;
+
+	// Color schemes
+	const colorSchemes = {
+		blue: '#007AFF',
+		green: '#10B981',
+		red: '#EF4444',
+		purple: '#8B5CF6',
+		orange: '#F97316',
+		pink: '#EC4899',
+		custom: color
+	};
+
+	const activeColor = colorScheme === 'custom' ? color : colorSchemes[colorScheme];
+
+	// Size variants (in rem)
+	const sizeMap = {
+		xs: 0.75,
+		sm: 0.875,
+		md: 1,
+		lg: 1.25,
+		xl: 1.5
+	};
+
+	const fontSize = typeof size === 'number' ? size : sizeMap[size];
+
+	// Sync checked state with value prop (one-way: value -> checked)
+	$: if (design !== 'multi') {
+		const newChecked = typeof value === 'boolean' ? value : value === 'on';
+		if (newChecked !== checked) {
+			checked = newChecked;
+		}
+	}
+
+	function handleClick(event: MouseEvent) {
+		if (disabled || loading || readonly) {
+			event.preventDefault();
+			return;
+		}
+
+		if (design !== 'multi') {
+			const newChecked = !checked;
+			checked = newChecked;
+			value = newChecked ? (typeof value === 'boolean' ? true : 'on') : (typeof value === 'boolean' ? false : 'off');
+		}
+	}
+
+	function handleKeyDown(event: KeyboardEvent) {
+		if (disabled || loading || readonly) return;
+
+		if (event.key === ' ' || event.key === 'Enter') {
+			event.preventDefault();
+			if (design !== 'multi') {
+				const newChecked = !checked;
+				checked = newChecked;
+				value = newChecked ? (typeof value === 'boolean' ? true : 'on') : (typeof value === 'boolean' ? false : 'off');
+			}
+		}
+	}
 </script>
 
-{#if design == 'inner'}
-<div class="s s--inner">
-    <span id={`switch-${uniqueID}`}>{label}</span>
-    <button
-        role="switch"
-        aria-checked={checked}
-        aria-labelledby={`switch-${uniqueID}`}
-        on:click={handleClick}>
-            <span>on</span>
-            <span>off</span>
-    </button>
-</div>
-{:else if design == 'slider'}
-<div class="s s--slider" style="font-size:{fontSize}px">
-    <span id={`switch-${uniqueID}`}>{label}</span>
-    <button
-        role="switch"
-        aria-checked={checked}
-        aria-labelledby={`switch-${uniqueID}`}
-        on:click={handleClick}>
-    </button>
-</div>
-{:else}
-<div class="s s--multi">
-    <div role='radiogroup'
-				 class="group-container"
-				 aria-labelledby={`label-${uniqueID}`}
-				 style="font-size:{fontSize}px" 
-				 id={`group-${uniqueID}`}>
-    <div class='legend' id={`label-${uniqueID}`}>{label}</div>
-        {#each options as option}
-            <input type="radio" id={`${option}-${uniqueID}`} value={option} bind:group={value}>
-            <label for={`${option}-${uniqueID}`}>
-                {option}
-            </label> 
-        {/each}
-    </div>
-</div>
+{#if design === 'inner'}
+	<div
+		class="switch-container"
+		class:disabled
+		class:readonly
+		style="font-size: {fontSize}rem;"
+	>
+		{#if label && labelPosition === 'left'}
+			<span class="switch-label" id="{uniqueID}-label">{label}</span>
+		{/if}
+		<button
+			type="button"
+			role="switch"
+			aria-checked={checked}
+			aria-label={ariaLabel || label}
+			aria-labelledby={label ? `${uniqueID}-label` : undefined}
+			aria-describedby={ariaDescribedBy || undefined}
+			{disabled}
+			class="switch switch--inner"
+			class:checked
+			class:loading
+			class:rounded
+			class:shadow
+			class:outline
+			on:click={handleClick}
+			on:keydown={handleKeyDown}
+			style="
+				--active-color: {activeColor};
+				--off-color: {offColor};
+				--animation-duration: {animationDuration}ms;
+				--animation-easing: {animationEasing};
+			"
+		>
+			{#if loading}
+				<span class="spinner"></span>
+			{:else}
+				<span class="switch-text">{checked ? 'ON' : 'OFF'}</span>
+			{/if}
+		</button>
+		{#if label && labelPosition === 'right'}
+			<span class="switch-label" id="{uniqueID}-label">{label}</span>
+		{/if}
+	</div>
 
+{:else if design === 'slider' || design === 'ios'}
+	<div
+		class="switch-container"
+		class:disabled
+		class:readonly
+		style="font-size: {fontSize}rem;"
+	>
+		{#if label && labelPosition === 'left'}
+			<span class="switch-label" id="{uniqueID}-label">{label}</span>
+		{/if}
+		<button
+			type="button"
+			role="switch"
+			aria-checked={checked}
+			aria-label={ariaLabel || label}
+			aria-labelledby={label ? `${uniqueID}-label` : undefined}
+			aria-describedby={ariaDescribedBy || undefined}
+			{disabled}
+			class="switch switch--slider"
+			class:checked
+			class:loading
+			class:shadow
+			class:outline
+			on:click={handleClick}
+			on:keydown={handleKeyDown}
+			style="
+				--active-color: {activeColor};
+				--off-color: {offColor};
+				--animation-duration: {animationDuration}ms;
+				--animation-easing: {animationEasing};
+			"
+		>
+			<span class="switch-track">
+				<span class="switch-thumb">
+					{#if loading}
+						<span class="spinner-small"></span>
+					{:else if showIcons}
+						<span class="switch-icon">{checked ? onIcon : offIcon}</span>
+					{/if}
+				</span>
+			</span>
+		</button>
+		{#if label && labelPosition === 'right'}
+			<span class="switch-label" id="{uniqueID}-label">{label}</span>
+		{/if}
+	</div>
+
+{:else if design === 'modern'}
+	<div
+		class="switch-container"
+		class:disabled
+		class:readonly
+		style="font-size: {fontSize}rem;"
+	>
+		{#if label && labelPosition === 'left'}
+			<span class="switch-label" id="{uniqueID}-label">{label}</span>
+		{/if}
+		<button
+			type="button"
+			role="switch"
+			aria-checked={checked}
+			aria-label={ariaLabel || label}
+			aria-labelledby={label ? `${uniqueID}-label` : undefined}
+			aria-describedby={ariaDescribedBy || undefined}
+			{disabled}
+			class="switch switch--modern"
+			class:checked
+			class:loading
+			class:shadow
+			class:outline
+			on:click={handleClick}
+			on:keydown={handleKeyDown}
+			style="
+				--active-color: {activeColor};
+				--off-color: {offColor};
+				--animation-duration: {animationDuration}ms;
+				--animation-easing: {animationEasing};
+			"
+		>
+			<span class="switch-track">
+				<span class="switch-thumb-modern">
+					{#if loading}
+						<span class="spinner-small"></span>
+					{:else if showIcons}
+						<span class="switch-icon-modern">{checked ? onIcon : offIcon}</span>
+					{/if}
+				</span>
+				{#if !loading && showIcons}
+					<span class="track-icons">
+						<span class="track-icon track-icon--on">{onIcon}</span>
+						<span class="track-icon track-icon--off">{offIcon}</span>
+					</span>
+				{/if}
+			</span>
+		</button>
+		{#if label && labelPosition === 'right'}
+			<span class="switch-label" id="{uniqueID}-label">{label}</span>
+		{/if}
+	</div>
+
+{:else if design === 'material'}
+	<div
+		class="switch-container"
+		class:disabled
+		class:readonly
+		style="font-size: {fontSize}rem;"
+	>
+		{#if label && labelPosition === 'left'}
+			<span class="switch-label" id="{uniqueID}-label">{label}</span>
+		{/if}
+		<button
+			type="button"
+			role="switch"
+			aria-checked={checked}
+			aria-label={ariaLabel || label}
+			aria-labelledby={label ? `${uniqueID}-label` : undefined}
+			aria-describedby={ariaDescribedBy || undefined}
+			{disabled}
+			class="switch switch--material"
+			class:checked
+			class:loading
+			class:shadow
+			class:outline
+			on:click={handleClick}
+			on:keydown={handleKeyDown}
+			style="
+				--active-color: {activeColor};
+				--off-color: {offColor};
+				--animation-duration: {animationDuration}ms;
+				--animation-easing: {animationEasing};
+			"
+		>
+			<span class="switch-track-material">
+				<span class="switch-thumb-material">
+					{#if loading}
+						<span class="spinner-small"></span>
+					{/if}
+				</span>
+			</span>
+		</button>
+		{#if label && labelPosition === 'right'}
+			<span class="switch-label" id="{uniqueID}-label">{label}</span>
+		{/if}
+	</div>
+
+{:else if design === 'multi'}
+	<div
+		class="switch-container switch-container--multi"
+		class:disabled
+		class:readonly
+		style="font-size: {fontSize}rem;"
+	>
+		<div
+			role="radiogroup"
+			class="switch-multi"
+			aria-labelledby="{uniqueID}-legend"
+			aria-describedby={ariaDescribedBy || undefined}
+			style="
+				--active-color: {activeColor};
+				--off-color: {offColor};
+				--animation-duration: {animationDuration}ms;
+				--animation-easing: {animationEasing};
+			"
+		>
+			{#if label}
+				<div class="switch-multi-legend" id="{uniqueID}-legend">{label}</div>
+			{/if}
+			<div class="switch-multi-options" class:shadow class:outline>
+				{#each options as option, index}
+					<input
+						type="radio"
+						id="{uniqueID}-{option}"
+						value={option}
+						bind:group={value}
+						{disabled}
+						class="switch-multi-input"
+					/>
+					<label
+						for="{uniqueID}-{option}"
+						class="switch-multi-label"
+						class:first={index === 0}
+						class:last={index === options.length - 1}
+					>
+						{option}
+					</label>
+				{/each}
+			</div>
+		</div>
+	</div>
 {/if}
 
 <style>
-			:root {
-		--accent-color: CornflowerBlue;
-		--gray: #ccc;
+	:root {
+		--active-color: #007AFF;
+		--off-color: #E5E7EB;
+		--animation-duration: 300ms;
+		--animation-easing: ease-in-out;
 	}
-    /* Inner Design Option */
-    .s--inner button {
-        padding: 0.5em;
-        background-color: #fff;
-        border: 1px solid var(--gray);
-    }
-    [role='switch'][aria-checked='true'] :first-child,
-    [role='switch'][aria-checked='false'] :last-child {
-        display: none;
-        color: #fff;
-    }
 
-    .s--inner button span {
-        user-select: none;
-        pointer-events:none;
-        padding: 0.25em;
-    }
+	/* Container */
+	.switch-container {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.75em;
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+	}
 
-    .s--inner button:focus {
-        outline: var(--accent-color) solid 1px;
-    }
+	.switch-container.disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
 
-    /* Slider Design Option */
+	.switch-container.readonly {
+		cursor: default;
+	}
 
-    .s--slider {
-        display: flex;
-        align-items: center;
-    }
+	.switch-label {
+		user-select: none;
+		font-size: 1em;
+		color: #374151;
+	}
 
-    .s--slider button {
-        width: 3em;
-        height: 1.6em;
-        position: relative;
-        margin: 0 0 0 0.5em;
-        background: var(--gray);
-        border: none;
-    }
+	/* Base Switch */
+	.switch {
+		position: relative;
+		border: none;
+		cursor: pointer;
+		transition: all var(--animation-duration) var(--animation-easing);
+		font-family: inherit;
+	}
 
-    .s--slider button::before {
-        content: '';
-        position: absolute;
-        width: 1.3em;
-        height: 1.3em;
-        background: #fff;
-        top: 0.13em;
-        right: 1.5em;
-        transition: transform 0.3s;
-    }
+	.switch:disabled {
+		cursor: not-allowed;
+	}
 
-    .s--slider button[aria-checked='true']{
-        background-color: var(--accent-color)
-    }
+	.switch:focus-visible {
+		outline: 2px solid var(--active-color);
+		outline-offset: 2px;
+	}
 
-    .s--slider button[aria-checked='true']::before{
-        transform: translateX(1.3em);
-        transition: transform 0.3s;
-    }
+	.switch.shadow {
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	}
 
-    .s--slider button:focus {
-        box-shadow: 0 0px 0px 1px var(--accent-color);
-    }
+	.switch.outline {
+		border: 1px solid #D1D5DB;
+	}
 
-    /* Multi Design Option */
+	/* Inner Design */
+	.switch--inner {
+		padding: 0.4em 0.8em;
+		background-color: var(--off-color);
+		color: #6B7280;
+		font-weight: 500;
+		font-size: 0.875em;
+		min-width: 4em;
+		border-radius: 0.25em;
+	}
 
-    /* Based on suggestions from Sara Soueidan https://www.sarasoueidan.com/blog/toggle-switch-design/
-    and this example from Scott O'hara https://codepen.io/scottohara/pen/zLZwNv */
+	.switch--inner.rounded {
+		border-radius: 0.5em;
+	}
 
-    .s--multi .group-container {
-        border: none;
-        padding: 0;
-        white-space: nowrap;
-    }
+	.switch--inner.checked {
+		background-color: var(--active-color);
+		color: white;
+	}
 
-    /* .s--multi legend {
-    font-size: 2px;
-    opacity: 0;
-    position: absolute;
-    } */
+	.switch--inner .switch-text {
+		display: block;
+		user-select: none;
+		pointer-events: none;
+	}
 
-    .s--multi label {
-        display: inline-block;
-        line-height: 1.6;
-        position: relative;
-        z-index: 2;
-    }
+	/* Slider/iOS Design */
+	.switch--slider {
+		padding: 0;
+		background: transparent;
+		width: 3.5em;
+		height: 2em;
+	}
 
-    .s--multi input {
-        opacity: 0;
-        position: absolute;
-    }
+	.switch-track {
+		position: relative;
+		display: block;
+		width: 100%;
+		height: 100%;
+		background-color: var(--off-color);
+		border-radius: 1em;
+		transition: background-color var(--animation-duration) var(--animation-easing);
+	}
 
-    .s--multi label:first-of-type {
-        padding-right: 5em;
-    }
+	.switch--slider.checked .switch-track {
+		background-color: var(--active-color);
+	}
 
-    .s--multi label:last-child {
-        margin-left: -5em;
-        padding-left: 5em;
-    }
+	.switch-thumb {
+		position: absolute;
+		top: 0.15em;
+		left: 0.15em;
+		width: 1.7em;
+		height: 1.7em;
+		background-color: white;
+		border-radius: 50%;
+		transition: transform var(--animation-duration) var(--animation-easing);
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
 
-    .s--multi:focus-within label:first-of-type:after {
-        box-shadow: 0 0px 8px var(--accent-color);
-        border-radius: 1.5em;
-    }
+	.switch--slider.checked .switch-thumb {
+		transform: translateX(1.5em);
+	}
 
+	.switch-icon {
+		font-size: 0.75em;
+		user-select: none;
+	}
 
+	/* Modern Design */
+	.switch--modern {
+		padding: 0;
+		background: transparent;
+		width: 4em;
+		height: 2.2em;
+	}
 
-    /* making the switch UI.  */
-    .s--multi label:first-of-type:before,
-    .s--multi label:first-of-type:after {
-        content: "";
-        height: 1.25em;
-        overflow: hidden;
-        pointer-events: none;
-        position: absolute;
-        vertical-align: middle;
-    }
+	.switch--modern .switch-track {
+		border-radius: 1.1em;
+	}
 
-    .s--multi label:first-of-type:before {
-        border-radius: 100%;
-        z-index: 2;
-        position: absolute;
-        width: 1.2em;
-        height: 1.2em;
-        background: #fff;
-        top: 0.2em;
-        right: 1.2em;
-        transition: transform 0.3s;
-    }
+	.switch-thumb-modern {
+		position: absolute;
+		top: 0.2em;
+		left: 0.2em;
+		width: 1.8em;
+		height: 1.8em;
+		background-color: white;
+		border-radius: 50%;
+		transition: transform var(--animation-duration) var(--animation-easing), background-color var(--animation-duration) var(--animation-easing);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
 
-    .s--multi label:first-of-type:after {
-        background: var(--accent-color);
-        border-radius: 1em;
-        margin: 0 1em;
-        transition: background .2s ease-in-out;
-        width: 3em;
-        height: 1.6em;
-    }
+	.switch--modern.checked .switch-thumb-modern {
+		transform: translateX(1.8em);
+	}
 
-    .s--multi input:first-of-type:checked ~ label:first-of-type:after {
-        background: var(--gray);
-    }
+	.track-icons {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0 0.5em;
+		pointer-events: none;
+	}
 
-    .s--multi input:first-of-type:checked ~ label:first-of-type:before {
-        transform: translateX(-1.4em);
-    }
+	.track-icon {
+		font-size: 0.7em;
+		color: white;
+		opacity: 0;
+		transition: opacity var(--animation-duration) var(--animation-easing);
+	}
 
-    .s--multi input:last-of-type:checked ~ label:last-of-type {
-        z-index: 1;
-    }
+	.switch--modern.checked .track-icon--on {
+		opacity: 1;
+	}
 
-    .s--multi input:focus {
-        box-shadow: 0 0px 8px var(--accent-color);
-        border-radius: 1.5em;
-    }
+	.switch--modern:not(.checked) .track-icon--off {
+		opacity: 0.7;
+	}
 
-    /* gravy */ 
+	.switch-icon-modern {
+		font-size: 0.8em;
+		user-select: none;
+		color: var(--active-color);
+	}
 
-    /* Inner Design Option */
-    [role='switch'][aria-checked='true'] :first-child,
-    [role='switch'][aria-checked='false'] :last-child {
-        border-radius: 0.25em;
-        background: var(--accent-color);
-        display: inline-block;
-    }
+	/* Material Design */
+	.switch--material {
+		padding: 0;
+		background: transparent;
+		width: 3.5em;
+		height: 1.5em;
+	}
 
-    .s--inner button:focus {
-        box-shadow: 0 0px 8px var(--accent-color);
-        border-radius: 0.1em;
-    }
+	.switch-track-material {
+		position: relative;
+		display: block;
+		width: 100%;
+		height: 100%;
+		background-color: var(--off-color);
+		border-radius: 0.75em;
+		transition: background-color var(--animation-duration) var(--animation-easing);
+	}
 
-    /* Slider Design Option */
-    .s--slider button {
-        border-radius: 1.5em;
-    } 
-    
-    .s--slider button::before {
-        border-radius: 100%;
-    }
+	.switch--material.checked .switch-track-material {
+		background-color: var(--active-color);
+		opacity: 0.5;
+	}
 
-    .s--slider button:focus {
-        box-shadow: 0 0px 8px var(--accent-color);
-        border-radius: 1.5em;
-    }
-   
+	.switch-thumb-material {
+		position: absolute;
+		top: 50%;
+		left: 0;
+		transform: translateY(-50%);
+		width: 1.5em;
+		height: 1.5em;
+		background-color: #FAFAFA;
+		border-radius: 50%;
+		transition: transform var(--animation-duration) var(--animation-easing), background-color var(--animation-duration) var(--animation-easing);
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
 
+	.switch--material.checked .switch-thumb-material {
+		transform: translateY(-50%) translateX(2em);
+		background-color: var(--active-color);
+	}
+
+	/* Multi Design */
+	.switch-container--multi {
+		display: block;
+	}
+
+	.switch-multi {
+		display: inline-block;
+	}
+
+	.switch-multi-legend {
+		font-size: 0.9em;
+		color: #374151;
+		margin-bottom: 0.5em;
+		font-weight: 500;
+	}
+
+	.switch-multi-options {
+		display: inline-flex;
+		background-color: var(--off-color);
+		border-radius: 0.5em;
+		padding: 0.25em;
+		position: relative;
+	}
+
+	.switch-multi-options.shadow {
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	}
+
+	.switch-multi-options.outline {
+		border: 1px solid #D1D5DB;
+	}
+
+	.switch-multi-input {
+		position: absolute;
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	.switch-multi-label {
+		position: relative;
+		padding: 0.5em 1.2em;
+		border-radius: 0.375em;
+		cursor: pointer;
+		user-select: none;
+		transition: all var(--animation-duration) var(--animation-easing);
+		font-size: 0.875em;
+		font-weight: 500;
+		color: #6B7280;
+		z-index: 1;
+	}
+
+	.switch-multi-label.first {
+		margin-left: 0;
+	}
+
+	.switch-multi-label.last {
+		margin-right: 0;
+	}
+
+	.switch-multi-input:checked + .switch-multi-label {
+		background-color: var(--active-color);
+		color: white;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	}
+
+	.switch-multi-input:focus-visible + .switch-multi-label {
+		outline: 2px solid var(--active-color);
+		outline-offset: 2px;
+	}
+
+	.switch-multi-input:disabled + .switch-multi-label {
+		cursor: not-allowed;
+		opacity: 0.5;
+	}
+
+	/* Loading Spinner */
+	.spinner,
+	.spinner-small {
+		display: inline-block;
+		border: 2px solid rgba(255, 255, 255, 0.3);
+		border-top-color: white;
+		border-radius: 50%;
+		animation: spin 0.6s linear infinite;
+	}
+
+	.spinner {
+		width: 1em;
+		height: 1em;
+	}
+
+	.spinner-small {
+		width: 0.8em;
+		height: 0.8em;
+		border-width: 1.5px;
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	/* Hover states */
+	.switch:not(:disabled):hover {
+		opacity: 0.9;
+	}
+
+	.switch-multi-label:hover {
+		background-color: rgba(0, 0, 0, 0.05);
+	}
+
+	.switch-multi-input:checked + .switch-multi-label:hover {
+		background-color: var(--active-color);
+		opacity: 0.9;
+	}
 </style>
