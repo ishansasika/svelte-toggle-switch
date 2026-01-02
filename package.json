@@ -1,7 +1,7 @@
 {
   "name": "svelte-toggle-switch",
   "private": false,
-  "version": "2.0.0",
+  "version": "2.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -34,9 +34,11 @@
     "svelte component",
     "ui component",
     "accessible",
-    "typescript"
+    "typescript",
+    "form validation",
+    "events"
   ],
-  "author": "Ishan Karunaratne <ishansasika@gmail.com> (https://ishansasika.mn.co/)",
+  "author": "Ishan Karunaratne <ishansasika@gmail.com> (https://ishansasika.dev)",
   "license": "MIT",
-  "homepage": "https://github.com/ishansasika/svelte-toggle-switch#readme"
+  "homepage": "https://svelte-toggle-switch.ishansasika.dev"
 }
