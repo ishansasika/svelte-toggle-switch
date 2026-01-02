@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { toggleSidebar } from '$stores/sidebar';
-	import ThemeSwitch from '$components/common/ThemeSwitch.svelte';
 
 	$: currentPath = $page.url.pathname;
 </script>
@@ -59,7 +58,6 @@
 				>
 					npm
 				</a>
-				<ThemeSwitch />
 			</nav>
 
 			<!-- Mobile Menu Button -->
