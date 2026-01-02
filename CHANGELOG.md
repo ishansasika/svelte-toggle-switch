@@ -39,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Focus and blur events properly propagate
 - ARIA attributes correctly reference helper text for screen readers
 
-## [2.0.0] - 2025-01-01
+## [2.0.0] - 2025-12-14
 
 ### Added
 - Complete rewrite with TypeScript support
@@ -59,7 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Component props now use TypeScript types
 - Removed deprecated v1.x props
 
-## [1.0.0] - 2024-XX-XX
+## [1.0.0] - 2022-05-29
 
 ### Added
 - Initial release
