@@ -1,4 +1,8 @@
 <script lang="ts">
+	import { createEventDispatcher } from 'svelte';
+
+	const dispatch = createEventDispatcher();
+
 	// Core Props
 	export let value: boolean | string = false;
 	export let label: string = '';
@@ -11,7 +15,7 @@
 	export let size: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | number = 'md';
 	export let color: string = '#007AFF';
 	export let offColor: string = '#E5E7EB';
-	export let colorScheme: 'blue' | 'green' | 'red' | 'purple' | 'orange' | 'pink' | 'custom' = 'blue';
+	export let colorScheme: 'blue' | 'green' | 'red' | 'purple' | 'orange' | 'pink' | 'yellow' | 'indigo' | 'teal' | 'custom' = 'blue';
 
 	// State Props
 	export let disabled: boolean = false;
@@ -31,6 +35,8 @@
 	export let ariaLabel: string = '';
 	export let ariaDescribedBy: string = '';
 	export let id: string = '';
+	export let name: string = '';
+	export let tabIndex: number = 0;
 
 	// Advanced Props
 	export let labelPosition: 'left' | 'right' = 'right';
@@ -38,11 +44,22 @@
 	export let shadow: boolean = false;
 	export let outline: boolean = false;
 
+	// v2.1.0 New Features
+	// Custom Text Labels
+	export let onText: string = 'ON';
+	export let offText: string = 'OFF';
+
+	// Form Validation
+	export let helperText: string = '';
+	export let errorText: string = '';
+	export let required: boolean = false;
+	export let error: boolean = false;
+
 	// Internal state
 	let checked: boolean = typeof value === 'boolean' ? value : value === 'on';
 	const uniqueID = id || `switch-${Math.floor(Math.random() * 1000000)}`;
 
-	// Color schemes
+	// Color schemes (v2.1.0 - added yellow, indigo, teal)
 	const colorSchemes = {
 		blue: '#007AFF',
 		green: '#10B981',
@@ -50,6 +67,9 @@
 		purple: '#8B5CF6',
 		orange: '#F97316',
 		pink: '#EC4899',
+		yellow: '#F59E0B',
+		indigo: '#6366F1',
+		teal: '#14B8A6',
 		custom: color
 	};
 
@@ -83,7 +103,11 @@
 		if (design !== 'multi') {
 			const newChecked = !checked;
 			checked = newChecked;
-			value = newChecked ? (typeof value === 'boolean' ? true : 'on') : (typeof value === 'boolean' ? false : 'off');
+			const newValue = newChecked ? (typeof value === 'boolean' ? true : 'on') : (typeof value === 'boolean' ? false : 'off');
+			value = newValue;
+
+			// v2.1.0 - Dispatch change event
+			dispatch('change', { value: newValue, checked: newChecked });
 		}
 	}
 
@@ -95,9 +119,27 @@
 			if (design !== 'multi') {
 				const newChecked = !checked;
 				checked = newChecked;
-				value = newChecked ? (typeof value === 'boolean' ? true : 'on') : (typeof value === 'boolean' ? false : 'off');
+				const newValue = newChecked ? (typeof value === 'boolean' ? true : 'on') : (typeof value === 'boolean' ? false : 'off');
+				value = newValue;
+
+				// v2.1.0 - Dispatch change event
+				dispatch('change', { value: newValue, checked: newChecked });
 			}
 		}
+	}
+
+	// v2.1.0 - Focus/Blur event handlers
+	function handleFocus(event: FocusEvent) {
+		dispatch('focus', { event });
+	}
+
+	function handleBlur(event: FocusEvent) {
+		dispatch('blur', { event });
+	}
+
+	// v2.1.0 - Multi-select change handler
+	function handleMultiChange() {
+		dispatch('change', { value });
 	}
 </script>
 
@@ -117,16 +159,22 @@
 			aria-checked={checked}
 			aria-label={ariaLabel || label}
 			aria-labelledby={label ? `${uniqueID}-label` : undefined}
-			aria-describedby={ariaDescribedBy || undefined}
+			aria-describedby={ariaDescribedBy || (helperText || errorText ? `${uniqueID}-helper` : undefined)}
+			aria-required={required}
+			aria-invalid={error}
 			{disabled}
+			tabindex={tabIndex}
 			class="switch switch--inner"
 			class:checked
 			class:loading
 			class:rounded
 			class:shadow
 			class:outline
+			class:error
 			on:click={handleClick}
 			on:keydown={handleKeyDown}
+			on:focus={handleFocus}
+			on:blur={handleBlur}
 			style="
 				--active-color: {activeColor};
 				--off-color: {offColor};
@@ -137,11 +185,16 @@
 			{#if loading}
 				<span class="spinner"></span>
 			{:else}
-				<span class="switch-text">{checked ? 'ON' : 'OFF'}</span>
+				<span class="switch-text">{checked ? onText : offText}</span>
 			{/if}
 		</button>
 		{#if label && labelPosition === 'right'}
 			<span class="switch-label" id="{uniqueID}-label">{label}</span>
+		{/if}
+		{#if helperText || errorText}
+			<span class="switch-helper-text" id="{uniqueID}-helper" class:error-text={error}>
+				{error && errorText ? errorText : helperText}
+			</span>
 		{/if}
 	</div>
 
@@ -161,15 +214,21 @@
 			aria-checked={checked}
 			aria-label={ariaLabel || label}
 			aria-labelledby={label ? `${uniqueID}-label` : undefined}
-			aria-describedby={ariaDescribedBy || undefined}
+			aria-describedby={ariaDescribedBy || (helperText || errorText ? `${uniqueID}-helper` : undefined)}
+			aria-required={required}
+			aria-invalid={error}
 			{disabled}
+			tabindex={tabIndex}
 			class="switch switch--slider"
 			class:checked
 			class:loading
 			class:shadow
 			class:outline
+			class:error
 			on:click={handleClick}
 			on:keydown={handleKeyDown}
+			on:focus={handleFocus}
+			on:blur={handleBlur}
 			style="
 				--active-color: {activeColor};
 				--off-color: {offColor};
@@ -190,6 +249,11 @@
 		{#if label && labelPosition === 'right'}
 			<span class="switch-label" id="{uniqueID}-label">{label}</span>
 		{/if}
+		{#if helperText || errorText}
+			<span class="switch-helper-text" id="{uniqueID}-helper" class:error-text={error}>
+				{error && errorText ? errorText : helperText}
+			</span>
+		{/if}
 	</div>
 
 {:else if design === 'modern'}
@@ -208,15 +272,21 @@
 			aria-checked={checked}
 			aria-label={ariaLabel || label}
 			aria-labelledby={label ? `${uniqueID}-label` : undefined}
-			aria-describedby={ariaDescribedBy || undefined}
+			aria-describedby={ariaDescribedBy || (helperText || errorText ? `${uniqueID}-helper` : undefined)}
+			aria-required={required}
+			aria-invalid={error}
 			{disabled}
+			tabindex={tabIndex}
 			class="switch switch--modern"
 			class:checked
 			class:loading
 			class:shadow
 			class:outline
+			class:error
 			on:click={handleClick}
 			on:keydown={handleKeyDown}
+			on:focus={handleFocus}
+			on:blur={handleBlur}
 			style="
 				--active-color: {activeColor};
 				--off-color: {offColor};
@@ -243,6 +313,11 @@
 		{#if label && labelPosition === 'right'}
 			<span class="switch-label" id="{uniqueID}-label">{label}</span>
 		{/if}
+		{#if helperText || errorText}
+			<span class="switch-helper-text" id="{uniqueID}-helper" class:error-text={error}>
+				{error && errorText ? errorText : helperText}
+			</span>
+		{/if}
 	</div>
 
 {:else if design === 'material'}
@@ -261,15 +336,21 @@
 			aria-checked={checked}
 			aria-label={ariaLabel || label}
 			aria-labelledby={label ? `${uniqueID}-label` : undefined}
-			aria-describedby={ariaDescribedBy || undefined}
+			aria-describedby={ariaDescribedBy || (helperText || errorText ? `${uniqueID}-helper` : undefined)}
+			aria-required={required}
+			aria-invalid={error}
 			{disabled}
+			tabindex={tabIndex}
 			class="switch switch--material"
 			class:checked
 			class:loading
 			class:shadow
 			class:outline
+			class:error
 			on:click={handleClick}
 			on:keydown={handleKeyDown}
+			on:focus={handleFocus}
+			on:blur={handleBlur}
 			style="
 				--active-color: {activeColor};
 				--off-color: {offColor};
@@ -287,6 +368,11 @@
 		</button>
 		{#if label && labelPosition === 'right'}
 			<span class="switch-label" id="{uniqueID}-label">{label}</span>
+		{/if}
+		{#if helperText || errorText}
+			<span class="switch-helper-text" id="{uniqueID}-helper" class:error-text={error}>
+				{error && errorText ? errorText : helperText}
+			</span>
 		{/if}
 	</div>
 
@@ -317,9 +403,13 @@
 					<input
 						type="radio"
 						id="{uniqueID}-{option}"
+						{name}
 						value={option}
 						bind:group={value}
+						on:change={handleMultiChange}
 						{disabled}
+						{required}
+						tabindex={tabIndex}
 						class="switch-multi-input"
 					/>
 					<label
@@ -333,6 +423,11 @@
 				{/each}
 			</div>
 		</div>
+		{#if helperText || errorText}
+			<span class="switch-helper-text" id="{uniqueID}-helper" class:error-text={error}>
+				{error && errorText ? errorText : helperText}
+			</span>
+		{/if}
 	</div>
 {/if}
 
@@ -367,6 +462,19 @@
 		color: #374151;
 	}
 
+	/* v2.1.0 - Helper Text */
+	.switch-helper-text {
+		display: block;
+		font-size: 0.875em;
+		color: #6B7280;
+		margin-top: 0.375em;
+		line-height: 1.4;
+	}
+
+	.switch-helper-text.error-text {
+		color: #EF4444;
+	}
+
 	/* Base Switch */
 	.switch {
 		position: relative;
@@ -391,6 +499,15 @@
 
 	.switch.outline {
 		border: 1px solid #D1D5DB;
+	}
+
+	/* v2.1.0 - Error State */
+	.switch.error {
+		border-color: #EF4444;
+	}
+
+	.switch.error:focus-visible {
+		outline-color: #EF4444;
 	}
 
 	/* Inner Design */
