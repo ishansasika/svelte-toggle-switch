@@ -5,6 +5,7 @@ node_modules
 dist
 build
 .svelte-kit
+*.tgz
 
 # Environment variables
 .env
@@ -48,3 +49,8 @@ coverage
 *.tmp
 *.temp
 .cache
+
+# Firebase
+.firebase/
+firebase-debug.log
+firebase-debug.*.log

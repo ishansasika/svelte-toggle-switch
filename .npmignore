@@ -1,0 +1,58 @@
+# Demo application (not needed in npm package)
+demo/
+
+# Source files (only publish built files in dist/)
+src/App.svelte
+src/main.ts
+src/vite-env.d.ts
+src/app.css
+
+# Build and config files
+vite.config.ts
+tsconfig.json
+tsconfig.node.json
+svelte.config.js
+
+# Firebase hosting
+.firebaserc
+firebase.json
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+
+# GitHub workflows
+.github/
+
+# Development files
+.gitignore
+.gitattributes
+CLAUDE.md
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+*.sw?
+
+# Testing
+coverage/
+.nyc_output/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Keep these in the package:
+# - package.json
+# - README.md
+# - LICENSE
+# - CHANGELOG.md
+# - src/lib/ (component source)
