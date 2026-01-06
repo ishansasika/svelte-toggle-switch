@@ -28,6 +28,13 @@
 	let mdSwitch = false;
 	let lgSwitch = false;
 	let xlSwitch = false;
+
+	// v2.2.0 - New features
+	let darkModeSwitch = false;
+	let darkModeAuto = false;
+	let gradientSwitch = false;
+	let swipeSwitch = false;
+	let rtlSwitch = false;
 </script>
 
 <main>
@@ -266,8 +273,210 @@
 		</div>
 	</section>
 
+	<section class="feature-highlight">
+		<h2>🚀 v2.2.0 New Features</h2>
+
+		<div class="feature-section">
+			<h3>Dark Mode Support</h3>
+			<div class="grid">
+				<div class="card">
+					<h4>Manual Dark Mode</h4>
+					<Switch
+						bind:value={darkModeSwitch}
+						label="Enable feature"
+						darkMode={true}
+						colorScheme="blue"
+					/>
+					<p class="info">Always uses dark mode colors</p>
+				</div>
+
+				<div class="card">
+					<h4>Auto Dark Mode</h4>
+					<Switch
+						bind:value={darkModeAuto}
+						label="System theme"
+						darkMode="auto"
+						colorScheme="purple"
+					/>
+					<p class="info">Follows system preference</p>
+				</div>
+
+				<div class="card">
+					<h4>Dark with Gradient</h4>
+					<Switch
+						bind:value={darkModeSwitch}
+						label="Premium mode"
+						darkMode={true}
+						gradient={true}
+						gradientPreset="berry"
+					/>
+					<p class="info">Dark mode + gradient colors</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="feature-section">
+			<h3>Gradient Colors</h3>
+			<div class="grid">
+				<div class="card">
+					<h4>Sunset Gradient</h4>
+					<Switch
+						bind:value={gradientSwitch}
+						label="Sunset theme"
+						gradient={true}
+						gradientPreset="sunset"
+						design="slider"
+					/>
+				</div>
+
+				<div class="card">
+					<h4>Ocean Gradient</h4>
+					<Switch
+						bind:value={gradientSwitch}
+						label="Ocean theme"
+						gradient={true}
+						gradientPreset="ocean"
+						design="modern"
+					/>
+				</div>
+
+				<div class="card">
+					<h4>Forest Gradient</h4>
+					<Switch
+						bind:value={gradientSwitch}
+						label="Forest theme"
+						gradient={true}
+						gradientPreset="forest"
+						design="inner"
+					/>
+				</div>
+
+				<div class="card">
+					<h4>Berry Gradient</h4>
+					<Switch
+						bind:value={gradientSwitch}
+						label="Berry theme"
+						gradient={true}
+						gradientPreset="berry"
+						design="material"
+					/>
+				</div>
+
+				<div class="card">
+					<h4>Fire Gradient</h4>
+					<Switch
+						bind:value={gradientSwitch}
+						label="Fire theme"
+						gradient={true}
+						gradientPreset="fire"
+						design="slider"
+						size="lg"
+					/>
+				</div>
+
+				<div class="card">
+					<h4>Custom Gradient</h4>
+					<Switch
+						bind:value={gradientSwitch}
+						label="Custom theme"
+						gradient={true}
+						gradientPreset="custom"
+						customGradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+						design="modern"
+					/>
+				</div>
+			</div>
+		</div>
+
+		<div class="feature-section">
+			<h3>Touch Gestures (Mobile)</h3>
+			<div class="grid">
+				<div class="card">
+					<h4>Swipe to Toggle</h4>
+					<Switch
+						bind:value={swipeSwitch}
+						label="Notifications"
+						swipeToToggle={true}
+						colorScheme="green"
+						size="lg"
+					/>
+					<p class="info">👆 Swipe left/right to toggle</p>
+				</div>
+
+				<div class="card">
+					<h4>Custom Threshold</h4>
+					<Switch
+						bind:value={swipeSwitch}
+						label="Wi-Fi"
+						swipeToToggle={true}
+						swipeThreshold={30}
+						colorScheme="blue"
+						size="lg"
+					/>
+					<p class="info">Shorter swipe distance (30px)</p>
+				</div>
+
+				<div class="card">
+					<h4>With Gradient</h4>
+					<Switch
+						bind:value={swipeSwitch}
+						label="Dark mode"
+						swipeToToggle={true}
+						gradient={true}
+						gradientPreset="ocean"
+						size="lg"
+					/>
+					<p class="info">Swipe + beautiful gradients</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="feature-section">
+			<h3>RTL Support</h3>
+			<div class="grid">
+				<div class="card">
+					<h4>RTL Direction</h4>
+					<Switch
+						bind:value={rtlSwitch}
+						label="إعدادات"
+						dir="rtl"
+						colorScheme="orange"
+					/>
+					<p class="info">Right-to-left layout</p>
+				</div>
+
+				<div class="card">
+					<h4>RTL with Icons</h4>
+					<Switch
+						bind:value={rtlSwitch}
+						label="مزامنة"
+						dir="rtl"
+						design="modern"
+						showIcons={true}
+						onIcon="✓"
+						offIcon="✕"
+						colorScheme="purple"
+					/>
+					<p class="info">RTL + icons support</p>
+				</div>
+
+				<div class="card">
+					<h4>Auto Direction</h4>
+					<Switch
+						bind:value={rtlSwitch}
+						label="Auto detect"
+						dir="auto"
+						colorScheme="teal"
+					/>
+					<p class="info">Detects text direction</p>
+				</div>
+			</div>
+		</div>
+	</section>
+
 	<footer>
 		<p>Built with Svelte • TypeScript • Vite</p>
+		<p>Version 2.2.0 with Dark Mode, Gradients, Touch Gestures & RTL Support</p>
 		<p>
 			<a href="https://github.com/ishansasika/svelte-toggle-switch" target="_blank" rel="noopener">
 				View on GitHub
@@ -335,6 +544,14 @@
 		font-weight: 600;
 	}
 
+	h4 {
+		color: #6b7280;
+		font-size: 0.9rem;
+		margin-top: 0;
+		margin-bottom: 0.75rem;
+		font-weight: 600;
+	}
+
 	.grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -363,6 +580,52 @@
 		font-size: 0.875rem;
 		color: #6b7280;
 		font-family: 'Courier New', monospace;
+	}
+
+	.info {
+		margin-top: 0.75rem;
+		padding: 0.5rem;
+		background: rgba(99, 102, 241, 0.1);
+		border-radius: 0.375rem;
+		font-size: 0.8rem;
+		color: #4f46e5;
+		text-align: center;
+		font-style: italic;
+	}
+
+	/* v2.2.0 Feature Highlight Section */
+	.feature-highlight {
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		color: white;
+		border-radius: 1rem;
+		padding: 2rem;
+		margin-bottom: 2rem;
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+	}
+
+	.feature-highlight h2 {
+		color: white;
+		border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+		margin-bottom: 2rem;
+	}
+
+	.feature-section {
+		background: white;
+		border-radius: 0.75rem;
+		padding: 1.5rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.feature-section:last-child {
+		margin-bottom: 0;
+	}
+
+	.feature-section h3 {
+		color: #1f2937;
+		font-size: 1.25rem;
+		margin-bottom: 1.25rem;
+		padding-bottom: 0.5rem;
+		border-bottom: 2px solid #e5e7eb;
 	}
 
 	footer {
