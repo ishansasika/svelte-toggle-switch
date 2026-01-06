@@ -5,6 +5,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-01-06
+
+### Added
+- **Dark Mode Support**:
+  - `darkMode` prop with `true`, `false`, or `'auto'` options
+  - Auto-detection of system theme using `prefers-color-scheme` media query
+  - Dynamic theme switching with real-time event listeners
+  - Dark color variants for all 9 color schemes (blue, green, red, purple, orange, pink, yellow, indigo, teal)
+  - Dark mode aware label and helper text colors
+- **Gradient Colors**:
+  - `gradient` prop to enable gradient backgrounds
+  - 5 built-in gradient presets: sunset, ocean, forest, berry, fire
+  - `gradientPreset` prop to select from presets or use custom
+  - `customGradient` prop for custom CSS gradient support
+  - Gradient support across all design variants (slider, inner, modern, material, multi)
+- **Touch Gesture Support**:
+  - `swipeToToggle` prop to enable swipe-to-toggle on mobile
+  - Touch event handlers (touchstart, touchmove, touchend)
+  - `swipeThreshold` prop to customize swipe distance (default 50px)
+  - Visual feedback with dragging state showing thumb following finger
+  - RTL-aware swipe direction handling
+- **RTL (Right-to-Left) Support**:
+  - `dir` prop with `'ltr'`, `'rtl'`, or `'auto'` options
+  - Auto-detection of document text direction
+  - Mirrored animations and transforms for RTL layouts
+  - Touch gesture direction adjustment for RTL
+  - Full support for Arabic, Hebrew, Persian, and other RTL languages
+- **Demo Application Enhancements**:
+  - Dedicated v2.2.0 features showcase section
+  - 15+ interactive examples for new features
+  - Beautiful gradient-themed feature highlight section
+  - Mobile-friendly responsive design updates
+
+### Changed
+- Updated all design variants to support gradient backgrounds
+- Enhanced CSS transforms to work correctly in RTL layouts
+- Improved animation performance for touch interactions
+- Updated demo application footer with v2.2.0 version information
+
+### Technical
+- Added SSR-safe window and document checks for all new features
+- Implemented reactive color determination with dark mode awareness
+- Added CSS custom properties for drag offset in touch gestures
+- Enhanced CSS with 200+ new lines for feature support
+- Maintained full backward compatibility with v2.1.0
+
 ## [2.1.0] - 2026-01-02
 
 ### Added

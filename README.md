@@ -5,7 +5,7 @@ A comprehensive, accessible, and highly customizable toggle switch component for
 ## Features
 
 ✨ **5 Design Variants**: Slider (iOS), Inner, Modern, Material, and Multi-option\
-🎨 **Multiple Color Schemes**: 6 built-in schemes + custom colors\
+🎨 **Multiple Color Schemes**: 9 built-in schemes + custom colors\
 📏 **5 Size Options**: From extra small to extra large\
 ♿ **Fully Accessible**: ARIA attributes, keyboard navigation, screen reader support\
 🔄 **State Management**: Disabled, loading, and read-only states\
@@ -13,6 +13,10 @@ A comprehensive, accessible, and highly customizable toggle switch component for
 ⚡ **Smooth Animations**: Customizable duration and easing\
 📦 **TypeScript**: Full TypeScript support with proper types\
 🎭 **Flexible Styling**: Shadow, outline, and label positioning options\
+🌙 **Dark Mode Support**: Auto-detect system theme or manual control (v2.2.0)\
+🌈 **Gradient Colors**: 5 beautiful gradient presets + custom gradients (v2.2.0)\
+👆 **Touch Gestures**: Swipe to toggle on mobile devices (v2.2.0)\
+🌐 **RTL Support**: Full right-to-left language support (v2.2.0)\
 🚀 **Modern Stack**: Built with Svelte 5, Vite 6, and TypeScript 5
 
 ## Installation
@@ -42,6 +46,88 @@ pnpm add svelte-toggle-switch
 </script>
 
 <Switch bind:value={enabled} label="Enable notifications" />
+```
+
+## New in v2.2.0
+
+### 🌙 Dark Mode Support
+
+Automatically adapt to system theme or manually control dark mode colors.
+
+```svelte
+<!-- Auto-detect system theme -->
+<Switch bind:value={enabled} darkMode="auto" label="Notifications" />
+
+<!-- Always use dark mode -->
+<Switch bind:value={enabled} darkMode={true} label="Wi-Fi" />
+
+<!-- Combine with gradients -->
+<Switch
+  bind:value={enabled}
+  darkMode={true}
+  gradient={true}
+  gradientPreset="berry"
+  label="Premium mode"
+/>
+```
+
+### 🌈 Gradient Colors
+
+Add beautiful gradient backgrounds with built-in presets or custom gradients.
+
+```svelte
+<!-- Built-in gradient presets -->
+<Switch bind:value={enabled} gradient={true} gradientPreset="sunset" />
+<Switch bind:value={enabled} gradient={true} gradientPreset="ocean" />
+<Switch bind:value={enabled} gradient={true} gradientPreset="forest" />
+<Switch bind:value={enabled} gradient={true} gradientPreset="berry" />
+<Switch bind:value={enabled} gradient={true} gradientPreset="fire" />
+
+<!-- Custom gradient -->
+<Switch
+  bind:value={enabled}
+  gradient={true}
+  gradientPreset="custom"
+  customGradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+/>
+```
+
+### 👆 Touch Gesture Support
+
+Enable swipe-to-toggle for mobile-friendly interactions.
+
+```svelte
+<!-- Enable swipe to toggle -->
+<Switch bind:value={enabled} swipeToToggle={true} label="Notifications" />
+
+<!-- Custom swipe threshold -->
+<Switch
+  bind:value={enabled}
+  swipeToToggle={true}
+  swipeThreshold={30}
+  label="Quick toggle"
+/>
+```
+
+### 🌐 RTL (Right-to-Left) Support
+
+Full support for Arabic, Hebrew, Persian, and other RTL languages.
+
+```svelte
+<!-- Manual RTL direction -->
+<Switch bind:value={enabled} dir="rtl" label="إعدادات" />
+
+<!-- Auto-detect direction -->
+<Switch bind:value={enabled} dir="auto" label="Settings" />
+
+<!-- RTL with icons -->
+<Switch
+  bind:value={enabled}
+  dir="rtl"
+  design="modern"
+  showIcons={true}
+  label="مزامنة"
+/>
 ```
 
 ## Design Variants
@@ -246,6 +332,13 @@ Add custom icons to your toggles.
 | `rounded` | `boolean` | `true` | Use rounded corners (inner design) |
 | `shadow` | `boolean` | `false` | Add box shadow |
 | `outline` | `boolean` | `false` | Add border outline |
+| `darkMode` | `boolean \| 'auto'` | `false` | Dark mode: `true`, `false`, or `'auto'` to detect system theme (v2.2.0) |
+| `gradient` | `boolean` | `false` | Enable gradient colors (v2.2.0) |
+| `gradientPreset` | `'sunset' \| 'ocean' \| 'forest' \| 'berry' \| 'fire' \| 'custom'` | `'sunset'` | Gradient preset (v2.2.0) |
+| `customGradient` | `string` | `''` | Custom CSS gradient when `gradientPreset='custom'` (v2.2.0) |
+| `swipeToToggle` | `boolean` | `false` | Enable swipe gesture to toggle (mobile) (v2.2.0) |
+| `swipeThreshold` | `number` | `50` | Swipe distance in pixels to trigger toggle (v2.2.0) |
+| `dir` | `'ltr' \| 'rtl' \| 'auto'` | `'auto'` | Text direction for RTL support (v2.2.0) |
 
 ## Accessibility
 
@@ -375,7 +468,27 @@ MIT © [Ishan Karunaratne](https://github.com/ishansasika)
 
 ## Changelog
 
-### Version 2.0.0 (Latest)
+### Version 2.2.0 (Latest)
+
+**New Features** - Enhanced mobile experience and theming:
+
+- 🌙 **Dark Mode Support**: Auto-detect system theme or manual control
+- 🌈 **Gradient Colors**: 5 beautiful gradient presets + custom gradients
+- 👆 **Touch Gestures**: Swipe to toggle on mobile devices
+- 🌐 **RTL Support**: Full right-to-left language support for international users
+- 🎨 Dark color variants for all 9 color schemes
+- ⚡ Optimized animations for touch interactions
+
+### Version 2.1.0
+
+**Form Integration & Events**:
+
+- 📤 Event dispatchers (`on:change`, `on:focus`, `on:blur`)
+- 📝 Form validation support (helperText, errorText, required, error props)
+- 🎨 Added 3 new color schemes (yellow, indigo, teal)
+- ♿ Enhanced accessibility with form validation states
+
+### Version 2.0.0
 
 **Major Rewrite** - Complete redesign with modern features:
 
