@@ -55,9 +55,65 @@
 	export let required: boolean = false;
 	export let error: boolean = false;
 
+	// v2.2.0 New Features
+	// Dark Mode
+	export let darkMode: boolean | 'auto' = false;
+
+	// Gradient Colors
+	export let gradient: boolean = false;
+	export let gradientPreset: 'sunset' | 'ocean' | 'forest' | 'berry' | 'fire' | 'custom' = 'sunset';
+	export let customGradient: string = '';
+
+	// Touch Gestures
+	export let swipeToToggle: boolean = false;
+	export let swipeThreshold: number = 50;
+
+	// RTL Support
+	export let dir: 'ltr' | 'rtl' | 'auto' = 'auto';
+
 	// Internal state
 	let checked: boolean = typeof value === 'boolean' ? value : value === 'on';
 	const uniqueID = id || `switch-${Math.floor(Math.random() * 1000000)}`;
+
+	// v2.2.0 - Dark mode detection
+	let isDarkMode = false;
+	if (typeof window !== 'undefined') {
+		if (darkMode === 'auto') {
+			isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+			// Listen for changes
+			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+				isDarkMode = e.matches;
+			});
+		} else {
+			isDarkMode = darkMode === true;
+		}
+	}
+
+	// v2.2.0 - Gradient presets
+	const gradientPresets = {
+		sunset: 'linear-gradient(135deg, #FF6B6B 0%, #FFE66D 100%)',
+		ocean: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+		forest: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+		berry: 'linear-gradient(135deg, #EC4899 0%, #8B5CF6 100%)',
+		fire: 'linear-gradient(135deg, #F97316 0%, #EF4444 100%)',
+		custom: customGradient
+	};
+
+	// v2.2.0 - Touch gesture state
+	let touchStartX = 0;
+	let touchCurrentX = 0;
+	let isDragging = false;
+	let dragOffset = 0;
+
+	// v2.2.0 - RTL detection
+	let isRTL = false;
+	if (typeof document !== 'undefined') {
+		if (dir === 'auto') {
+			isRTL = document.documentElement.dir === 'rtl' || document.body.dir === 'rtl';
+		} else {
+			isRTL = dir === 'rtl';
+		}
+	}
 
 	// Color schemes (v2.1.0 - added yellow, indigo, teal)
 	const colorSchemes = {
@@ -73,7 +129,33 @@
 		custom: color
 	};
 
-	const activeColor = colorScheme === 'custom' ? color : colorSchemes[colorScheme];
+	// v2.2.0 - Dark mode color variants
+	const darkColorSchemes = {
+		blue: '#0A84FF',
+		green: '#30D158',
+		red: '#FF453A',
+		purple: '#BF5AF2',
+		orange: '#FF9F0A',
+		pink: '#FF375F',
+		yellow: '#FFD60A',
+		indigo: '#5E5CE6',
+		teal: '#40C8E0',
+		custom: color
+	};
+
+	// v2.2.0 - Determine active color (dark mode aware)
+	$: activeColor = (() => {
+		if (gradient) {
+			return gradientPreset === 'custom' ? customGradient : gradientPresets[gradientPreset];
+		}
+		if (isDarkMode) {
+			return colorScheme === 'custom' ? color : darkColorSchemes[colorScheme];
+		}
+		return colorScheme === 'custom' ? color : colorSchemes[colorScheme];
+	})();
+
+	// v2.2.0 - Dark mode aware off color
+	$: darkOffColor = isDarkMode ? '#374151' : offColor;
 
 	// Size variants (in rem)
 	const sizeMap = {
@@ -141,6 +223,52 @@
 	function handleMultiChange() {
 		dispatch('change', { value });
 	}
+
+	// v2.2.0 - Touch gesture handlers
+	function handleTouchStart(event: TouchEvent) {
+		if (!swipeToToggle || disabled || loading || readonly) return;
+
+		touchStartX = event.touches[0].clientX;
+		touchCurrentX = touchStartX;
+		isDragging = true;
+	}
+
+	function handleTouchMove(event: TouchEvent) {
+		if (!swipeToToggle || !isDragging || disabled || loading || readonly) return;
+
+		touchCurrentX = event.touches[0].clientX;
+		const diff = touchCurrentX - touchStartX;
+
+		// Apply RTL correction
+		const adjustedDiff = isRTL ? -diff : diff;
+
+		// Calculate drag offset (limited to switch width)
+		dragOffset = Math.max(-swipeThreshold, Math.min(swipeThreshold, adjustedDiff));
+	}
+
+	function handleTouchEnd(event: TouchEvent) {
+		if (!swipeToToggle || !isDragging || disabled || loading || readonly) return;
+
+		const diff = touchCurrentX - touchStartX;
+		const adjustedDiff = isRTL ? -diff : diff;
+
+		// Toggle if swipe threshold is met
+		if (Math.abs(adjustedDiff) >= swipeThreshold) {
+			const shouldBeChecked = adjustedDiff > 0;
+			if (shouldBeChecked !== checked) {
+				checked = shouldBeChecked;
+				const newValue = checked ? (typeof value === 'boolean' ? true : 'on') : (typeof value === 'boolean' ? false : 'off');
+				value = newValue;
+				dispatch('change', { value: newValue, checked });
+			}
+		}
+
+		// Reset drag state
+		isDragging = false;
+		dragOffset = 0;
+		touchStartX = 0;
+		touchCurrentX = 0;
+	}
 </script>
 
 {#if design === 'inner'}
@@ -148,7 +276,8 @@
 		class="switch-container"
 		class:disabled
 		class:readonly
-		style="font-size: {fontSize}rem;"
+		class:dark={isDarkMode}
+		style="font-size: {fontSize}rem; direction: {isRTL ? 'rtl' : 'ltr'};"
 	>
 		{#if label && labelPosition === 'left'}
 			<span class="switch-label" id="{uniqueID}-label">{label}</span>
@@ -171,13 +300,17 @@
 			class:shadow
 			class:outline
 			class:error
+			class:gradient
 			on:click={handleClick}
 			on:keydown={handleKeyDown}
 			on:focus={handleFocus}
 			on:blur={handleBlur}
+			on:touchstart={handleTouchStart}
+			on:touchmove={handleTouchMove}
+			on:touchend={handleTouchEnd}
 			style="
 				--active-color: {activeColor};
-				--off-color: {offColor};
+				--off-color: {darkOffColor};
 				--animation-duration: {animationDuration}ms;
 				--animation-easing: {animationEasing};
 			"
@@ -203,7 +336,8 @@
 		class="switch-container"
 		class:disabled
 		class:readonly
-		style="font-size: {fontSize}rem;"
+		class:dark={isDarkMode}
+		style="font-size: {fontSize}rem; direction: {isRTL ? 'rtl' : 'ltr'};"
 	>
 		{#if label && labelPosition === 'left'}
 			<span class="switch-label" id="{uniqueID}-label">{label}</span>
@@ -225,19 +359,25 @@
 			class:shadow
 			class:outline
 			class:error
+			class:gradient
+			class:rtl={isRTL}
 			on:click={handleClick}
 			on:keydown={handleKeyDown}
 			on:focus={handleFocus}
 			on:blur={handleBlur}
+			on:touchstart={handleTouchStart}
+			on:touchmove={handleTouchMove}
+			on:touchend={handleTouchEnd}
 			style="
 				--active-color: {activeColor};
-				--off-color: {offColor};
+				--off-color: {darkOffColor};
 				--animation-duration: {animationDuration}ms;
 				--animation-easing: {animationEasing};
+				--drag-offset: {dragOffset}px;
 			"
 		>
 			<span class="switch-track">
-				<span class="switch-thumb">
+				<span class="switch-thumb" class:dragging={isDragging}>
 					{#if loading}
 						<span class="spinner-small"></span>
 					{:else if showIcons}
@@ -261,7 +401,8 @@
 		class="switch-container"
 		class:disabled
 		class:readonly
-		style="font-size: {fontSize}rem;"
+		class:dark={isDarkMode}
+		style="font-size: {fontSize}rem; direction: {isRTL ? 'rtl' : 'ltr'};"
 	>
 		{#if label && labelPosition === 'left'}
 			<span class="switch-label" id="{uniqueID}-label">{label}</span>
@@ -283,19 +424,25 @@
 			class:shadow
 			class:outline
 			class:error
+			class:gradient
+			class:rtl={isRTL}
 			on:click={handleClick}
 			on:keydown={handleKeyDown}
 			on:focus={handleFocus}
 			on:blur={handleBlur}
+			on:touchstart={handleTouchStart}
+			on:touchmove={handleTouchMove}
+			on:touchend={handleTouchEnd}
 			style="
 				--active-color: {activeColor};
-				--off-color: {offColor};
+				--off-color: {darkOffColor};
 				--animation-duration: {animationDuration}ms;
 				--animation-easing: {animationEasing};
+				--drag-offset: {dragOffset}px;
 			"
 		>
 			<span class="switch-track">
-				<span class="switch-thumb-modern">
+				<span class="switch-thumb-modern" class:dragging={isDragging}>
 					{#if loading}
 						<span class="spinner-small"></span>
 					{:else if showIcons}
@@ -325,7 +472,8 @@
 		class="switch-container"
 		class:disabled
 		class:readonly
-		style="font-size: {fontSize}rem;"
+		class:dark={isDarkMode}
+		style="font-size: {fontSize}rem; direction: {isRTL ? 'rtl' : 'ltr'};"
 	>
 		{#if label && labelPosition === 'left'}
 			<span class="switch-label" id="{uniqueID}-label">{label}</span>
@@ -347,19 +495,25 @@
 			class:shadow
 			class:outline
 			class:error
+			class:gradient
+			class:rtl={isRTL}
 			on:click={handleClick}
 			on:keydown={handleKeyDown}
 			on:focus={handleFocus}
 			on:blur={handleBlur}
+			on:touchstart={handleTouchStart}
+			on:touchmove={handleTouchMove}
+			on:touchend={handleTouchEnd}
 			style="
 				--active-color: {activeColor};
-				--off-color: {offColor};
+				--off-color: {darkOffColor};
 				--animation-duration: {animationDuration}ms;
 				--animation-easing: {animationEasing};
+				--drag-offset: {dragOffset}px;
 			"
 		>
 			<span class="switch-track-material">
-				<span class="switch-thumb-material">
+				<span class="switch-thumb-material" class:dragging={isDragging}>
 					{#if loading}
 						<span class="spinner-small"></span>
 					{/if}
@@ -381,7 +535,8 @@
 		class="switch-container switch-container--multi"
 		class:disabled
 		class:readonly
-		style="font-size: {fontSize}rem;"
+		class:dark={isDarkMode}
+		style="font-size: {fontSize}rem; direction: {isRTL ? 'rtl' : 'ltr'};"
 	>
 		<div
 			role="radiogroup"
@@ -390,7 +545,7 @@
 			aria-describedby={ariaDescribedBy || undefined}
 			style="
 				--active-color: {activeColor};
-				--off-color: {offColor};
+				--off-color: {darkOffColor};
 				--animation-duration: {animationDuration}ms;
 				--animation-easing: {animationEasing};
 			"
@@ -398,7 +553,7 @@
 			{#if label}
 				<div class="switch-multi-legend" id="{uniqueID}-legend">{label}</div>
 			{/if}
-			<div class="switch-multi-options" class:shadow class:outline>
+			<div class="switch-multi-options" class:shadow class:outline class:gradient>
 				{#each options as option, index}
 					<input
 						type="radio"
@@ -456,10 +611,16 @@
 		cursor: default;
 	}
 
+	/* v2.2.0 - Dark mode styles */
+	.switch-container.dark .switch-label {
+		color: #E5E7EB;
+	}
+
 	.switch-label {
 		user-select: none;
 		font-size: 1em;
 		color: #374151;
+		transition: color var(--animation-duration) var(--animation-easing);
 	}
 
 	/* v2.1.0 - Helper Text */
@@ -530,6 +691,11 @@
 		color: white;
 	}
 
+	/* v2.2.0 - Gradient support for inner design */
+	.switch--inner.checked.gradient {
+		background: var(--active-color);
+	}
+
 	.switch--inner .switch-text {
 		display: block;
 		user-select: none;
@@ -558,6 +724,11 @@
 		background-color: var(--active-color);
 	}
 
+	/* v2.2.0 - Gradient support for slider design */
+	.switch--slider.checked.gradient .switch-track {
+		background: var(--active-color);
+	}
+
 	.switch-thumb {
 		position: absolute;
 		top: 0.15em;
@@ -575,6 +746,25 @@
 
 	.switch--slider.checked .switch-thumb {
 		transform: translateX(1.5em);
+	}
+
+	/* v2.2.0 - Touch gesture support */
+	.switch-thumb.dragging {
+		transition: none;
+		transform: translateX(calc(var(--drag-offset, 0px)));
+	}
+
+	.switch--slider.checked .switch-thumb.dragging {
+		transform: translateX(calc(1.5em + var(--drag-offset, 0px)));
+	}
+
+	/* v2.2.0 - RTL support */
+	.switch--slider.rtl.checked .switch-thumb {
+		transform: translateX(-1.5em);
+	}
+
+	.switch--slider.rtl.checked .switch-thumb.dragging {
+		transform: translateX(calc(-1.5em + var(--drag-offset, 0px)));
 	}
 
 	.switch-icon {
@@ -611,6 +801,30 @@
 
 	.switch--modern.checked .switch-thumb-modern {
 		transform: translateX(1.8em);
+	}
+
+	/* v2.2.0 - Touch gesture support for modern */
+	.switch-thumb-modern.dragging {
+		transition: none;
+		transform: translateX(calc(var(--drag-offset, 0px)));
+	}
+
+	.switch--modern.checked .switch-thumb-modern.dragging {
+		transform: translateX(calc(1.8em + var(--drag-offset, 0px)));
+	}
+
+	/* v2.2.0 - RTL support for modern */
+	.switch--modern.rtl.checked .switch-thumb-modern {
+		transform: translateX(-1.8em);
+	}
+
+	.switch--modern.rtl.checked .switch-thumb-modern.dragging {
+		transform: translateX(calc(-1.8em + var(--drag-offset, 0px)));
+	}
+
+	/* v2.2.0 - Gradient support for modern design */
+	.switch--modern.checked.gradient .switch-track {
+		background: var(--active-color);
 	}
 
 	.track-icons {
@@ -691,6 +905,30 @@
 		background-color: var(--active-color);
 	}
 
+	/* v2.2.0 - Touch gesture support for material */
+	.switch-thumb-material.dragging {
+		transition: none;
+		transform: translateY(-50%) translateX(calc(var(--drag-offset, 0px)));
+	}
+
+	.switch--material.checked .switch-thumb-material.dragging {
+		transform: translateY(-50%) translateX(calc(2em + var(--drag-offset, 0px)));
+	}
+
+	/* v2.2.0 - RTL support for material */
+	.switch--material.rtl.checked .switch-thumb-material {
+		transform: translateY(-50%) translateX(-2em);
+	}
+
+	.switch--material.rtl.checked .switch-thumb-material.dragging {
+		transform: translateY(-50%) translateX(calc(-2em + var(--drag-offset, 0px)));
+	}
+
+	/* v2.2.0 - Gradient support for material design */
+	.switch--material.checked.gradient .switch-thumb-material {
+		background: var(--active-color);
+	}
+
 	/* Multi Design */
 	.switch-container--multi {
 		display: block;
@@ -754,6 +992,11 @@
 		background-color: var(--active-color);
 		color: white;
 		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	}
+
+	/* v2.2.0 - Gradient support for multi design */
+	.switch-multi-options.gradient .switch-multi-input:checked + .switch-multi-label {
+		background: var(--active-color);
 	}
 
 	.switch-multi-input:focus-visible + .switch-multi-label {
