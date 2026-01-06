@@ -1,7 +1,7 @@
 {
   "name": "svelte-toggle-switch",
   "private": false,
-  "version": "2.1.0",
+  "version": "2.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -36,7 +36,13 @@
     "accessible",
     "typescript",
     "form validation",
-    "events"
+    "events",
+    "dark mode",
+    "gradient",
+    "touch gestures",
+    "rtl",
+    "swipe to toggle",
+    "mobile friendly"
   ],
   "author": "Ishan Karunaratne <ishansasika@gmail.com> (https://ishansasika.dev)",
   "license": "MIT",
