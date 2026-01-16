@@ -71,6 +71,30 @@
 	// RTL Support
 	export let dir: 'ltr' | 'rtl' | 'auto' = 'auto';
 
+	// v2.3.0 New Features
+	// Pulse Animation
+	export let pulse: boolean = false;
+	export let pulseColor: string = '';
+	export let pulseIntensity: 'subtle' | 'normal' | 'strong' = 'normal';
+
+	// Success/Error Animations
+	export let showSuccessAnimation: boolean = false;
+	export let showErrorAnimation: boolean = false;
+	export let successDuration: number = 1500;
+
+	// Haptic Feedback
+	export let hapticFeedback: boolean = false;
+	export let hapticPattern: 'light' | 'medium' | 'heavy' | number[] = 'light';
+
+	// Skeleton Loading State
+	export let skeleton: boolean = false;
+	export let skeletonAnimation: 'shimmer' | 'pulse' | 'wave' = 'shimmer';
+
+	// Tooltip Support
+	export let tooltip: string = '';
+	export let tooltipPosition: 'top' | 'bottom' | 'left' | 'right' = 'top';
+	export let tooltipDelay: number = 300;
+
 	// Internal state
 	let checked: boolean = typeof value === 'boolean' ? value : value === 'on';
 	const uniqueID = id || `switch-${Math.floor(Math.random() * 1000000)}`;
@@ -104,6 +128,75 @@
 	let touchCurrentX = 0;
 	let isDragging = false;
 	let dragOffset = 0;
+
+	// v2.3.0 - Animation states
+	let showSuccess = false;
+	let showError = false;
+	let isTooltipVisible = false;
+	let tooltipTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
+	// v2.3.0 - Pulse intensity values
+	const pulseIntensityMap = {
+		subtle: { scale: 1.02, opacity: 0.3 },
+		normal: { scale: 1.05, opacity: 0.5 },
+		strong: { scale: 1.1, opacity: 0.7 }
+	};
+
+	// v2.3.0 - Haptic patterns (in ms)
+	const hapticPatterns = {
+		light: [10],
+		medium: [20],
+		heavy: [30, 10, 30]
+	};
+
+	// v2.3.0 - Trigger haptic feedback
+	function triggerHaptic() {
+		if (!hapticFeedback || typeof navigator === 'undefined' || !navigator.vibrate) return;
+
+		const pattern = typeof hapticPattern === 'object'
+			? hapticPattern
+			: hapticPatterns[hapticPattern];
+
+		try {
+			navigator.vibrate(pattern);
+		} catch (e) {
+			// Vibration not supported or permission denied
+		}
+	}
+
+	// v2.3.0 - Trigger success animation
+	function triggerSuccessAnimation() {
+		if (!showSuccessAnimation) return;
+		showSuccess = true;
+		setTimeout(() => {
+			showSuccess = false;
+		}, successDuration);
+	}
+
+	// v2.3.0 - Trigger error animation
+	function triggerErrorAnimation() {
+		if (!showErrorAnimation) return;
+		showError = true;
+		setTimeout(() => {
+			showError = false;
+		}, 500);
+	}
+
+	// v2.3.0 - Tooltip handlers
+	function handleMouseEnter() {
+		if (!tooltip) return;
+		tooltipTimeoutId = setTimeout(() => {
+			isTooltipVisible = true;
+		}, tooltipDelay);
+	}
+
+	function handleMouseLeave() {
+		if (tooltipTimeoutId) {
+			clearTimeout(tooltipTimeoutId);
+			tooltipTimeoutId = null;
+		}
+		isTooltipVisible = false;
+	}
 
 	// v2.2.0 - RTL detection
 	let isRTL = false;
@@ -177,7 +270,7 @@
 	}
 
 	function handleClick(event: MouseEvent) {
-		if (disabled || loading || readonly) {
+		if (disabled || loading || readonly || skeleton) {
 			event.preventDefault();
 			return;
 		}
@@ -188,13 +281,19 @@
 			const newValue = newChecked ? (typeof value === 'boolean' ? true : 'on') : (typeof value === 'boolean' ? false : 'off');
 			value = newValue;
 
+			// v2.3.0 - Trigger haptic feedback
+			triggerHaptic();
+
+			// v2.3.0 - Trigger success animation
+			triggerSuccessAnimation();
+
 			// v2.1.0 - Dispatch change event
 			dispatch('change', { value: newValue, checked: newChecked });
 		}
 	}
 
 	function handleKeyDown(event: KeyboardEvent) {
-		if (disabled || loading || readonly) return;
+		if (disabled || loading || readonly || skeleton) return;
 
 		if (event.key === ' ' || event.key === 'Enter') {
 			event.preventDefault();
@@ -203,6 +302,12 @@
 				checked = newChecked;
 				const newValue = newChecked ? (typeof value === 'boolean' ? true : 'on') : (typeof value === 'boolean' ? false : 'off');
 				value = newValue;
+
+				// v2.3.0 - Trigger haptic feedback
+				triggerHaptic();
+
+				// v2.3.0 - Trigger success animation
+				triggerSuccessAnimation();
 
 				// v2.1.0 - Dispatch change event
 				dispatch('change', { value: newValue, checked: newChecked });
@@ -226,7 +331,7 @@
 
 	// v2.2.0 - Touch gesture handlers
 	function handleTouchStart(event: TouchEvent) {
-		if (!swipeToToggle || disabled || loading || readonly) return;
+		if (!swipeToToggle || disabled || loading || readonly || skeleton) return;
 
 		touchStartX = event.touches[0].clientX;
 		touchCurrentX = touchStartX;
@@ -234,7 +339,7 @@
 	}
 
 	function handleTouchMove(event: TouchEvent) {
-		if (!swipeToToggle || !isDragging || disabled || loading || readonly) return;
+		if (!swipeToToggle || !isDragging || disabled || loading || readonly || skeleton) return;
 
 		touchCurrentX = event.touches[0].clientX;
 		const diff = touchCurrentX - touchStartX;
@@ -247,7 +352,7 @@
 	}
 
 	function handleTouchEnd(event: TouchEvent) {
-		if (!swipeToToggle || !isDragging || disabled || loading || readonly) return;
+		if (!swipeToToggle || !isDragging || disabled || loading || readonly || skeleton) return;
 
 		const diff = touchCurrentX - touchStartX;
 		const adjustedDiff = isRTL ? -diff : diff;
@@ -259,6 +364,13 @@
 				checked = shouldBeChecked;
 				const newValue = checked ? (typeof value === 'boolean' ? true : 'on') : (typeof value === 'boolean' ? false : 'off');
 				value = newValue;
+
+				// v2.3.0 - Trigger haptic feedback
+				triggerHaptic();
+
+				// v2.3.0 - Trigger success animation
+				triggerSuccessAnimation();
+
 				dispatch('change', { value: newValue, checked });
 			}
 		}
@@ -277,52 +389,76 @@
 		class:disabled
 		class:readonly
 		class:dark={isDarkMode}
+		class:skeleton
 		style="font-size: {fontSize}rem; direction: {isRTL ? 'rtl' : 'ltr'};"
+		on:mouseenter={handleMouseEnter}
+		on:mouseleave={handleMouseLeave}
+		role="presentation"
 	>
 		{#if label && labelPosition === 'left'}
-			<span class="switch-label" id="{uniqueID}-label">{label}</span>
+			<span class="switch-label" class:skeleton-text={skeleton} id="{uniqueID}-label">{skeleton ? '' : label}</span>
 		{/if}
-		<button
-			type="button"
-			role="switch"
-			aria-checked={checked}
-			aria-label={ariaLabel || label}
-			aria-labelledby={label ? `${uniqueID}-label` : undefined}
-			aria-describedby={ariaDescribedBy || (helperText || errorText ? `${uniqueID}-helper` : undefined)}
-			aria-required={required}
-			aria-invalid={error}
-			{disabled}
-			tabindex={tabIndex}
-			class="switch switch--inner"
-			class:checked
-			class:loading
-			class:rounded
-			class:shadow
-			class:outline
-			class:error
-			class:gradient
-			on:click={handleClick}
-			on:keydown={handleKeyDown}
-			on:focus={handleFocus}
-			on:blur={handleBlur}
-			on:touchstart={handleTouchStart}
-			on:touchmove={handleTouchMove}
-			on:touchend={handleTouchEnd}
-			style="
-				--active-color: {activeColor};
-				--off-color: {darkOffColor};
-				--animation-duration: {animationDuration}ms;
-				--animation-easing: {animationEasing};
-			"
-		>
-			{#if loading}
-				<span class="spinner"></span>
+		<div class="switch-wrapper">
+			{#if skeleton}
+				<div class="switch-skeleton switch-skeleton--inner" class:skeleton-shimmer={skeletonAnimation === 'shimmer'} class:skeleton-pulse={skeletonAnimation === 'pulse'} class:skeleton-wave={skeletonAnimation === 'wave'}></div>
 			{:else}
-				<span class="switch-text">{checked ? onText : offText}</span>
+				<button
+					type="button"
+					role="switch"
+					aria-checked={checked}
+					aria-label={ariaLabel || label}
+					aria-labelledby={label ? `${uniqueID}-label` : undefined}
+					aria-describedby={ariaDescribedBy || (helperText || errorText ? `${uniqueID}-helper` : undefined)}
+					aria-required={required}
+					aria-invalid={error}
+					{disabled}
+					tabindex={tabIndex}
+					class="switch switch--inner"
+					class:checked
+					class:loading
+					class:rounded
+					class:shadow
+					class:outline
+					class:error
+					class:gradient
+					class:pulse
+					class:pulse-subtle={pulse && pulseIntensity === 'subtle'}
+					class:pulse-normal={pulse && pulseIntensity === 'normal'}
+					class:pulse-strong={pulse && pulseIntensity === 'strong'}
+					class:success-animation={showSuccess}
+					class:error-animation={showError}
+					on:click={handleClick}
+					on:keydown={handleKeyDown}
+					on:focus={handleFocus}
+					on:blur={handleBlur}
+					on:touchstart={handleTouchStart}
+					on:touchmove={handleTouchMove}
+					on:touchend={handleTouchEnd}
+					style="
+						--active-color: {activeColor};
+						--off-color: {darkOffColor};
+						--animation-duration: {animationDuration}ms;
+						--animation-easing: {animationEasing};
+						--pulse-color: {pulseColor || activeColor};
+					"
+				>
+					{#if loading}
+						<span class="spinner"></span>
+					{:else if showSuccess}
+						<span class="success-icon">✓</span>
+					{:else}
+						<span class="switch-text">{checked ? onText : offText}</span>
+					{/if}
+				</button>
 			{/if}
-		</button>
+			{#if tooltip && isTooltipVisible}
+				<div class="switch-tooltip" class:tooltip-top={tooltipPosition === 'top'} class:tooltip-bottom={tooltipPosition === 'bottom'} class:tooltip-left={tooltipPosition === 'left'} class:tooltip-right={tooltipPosition === 'right'}>
+					{tooltip}
+				</div>
+			{/if}
+		</div>
 		{#if label && labelPosition === 'right'}
-			<span class="switch-label" id="{uniqueID}-label">{label}</span>
+			<span class="switch-label" class:skeleton-text={skeleton} id="{uniqueID}-label">{skeleton ? '' : label}</span>
 		{/if}
 		{#if helperText || errorText}
 			<span class="switch-helper-text" id="{uniqueID}-helper" class:error-text={error}>
@@ -337,57 +473,81 @@
 		class:disabled
 		class:readonly
 		class:dark={isDarkMode}
+		class:skeleton
 		style="font-size: {fontSize}rem; direction: {isRTL ? 'rtl' : 'ltr'};"
+		on:mouseenter={handleMouseEnter}
+		on:mouseleave={handleMouseLeave}
+		role="presentation"
 	>
 		{#if label && labelPosition === 'left'}
-			<span class="switch-label" id="{uniqueID}-label">{label}</span>
+			<span class="switch-label" class:skeleton-text={skeleton} id="{uniqueID}-label">{skeleton ? '' : label}</span>
 		{/if}
-		<button
-			type="button"
-			role="switch"
-			aria-checked={checked}
-			aria-label={ariaLabel || label}
-			aria-labelledby={label ? `${uniqueID}-label` : undefined}
-			aria-describedby={ariaDescribedBy || (helperText || errorText ? `${uniqueID}-helper` : undefined)}
-			aria-required={required}
-			aria-invalid={error}
-			{disabled}
-			tabindex={tabIndex}
-			class="switch switch--slider"
-			class:checked
-			class:loading
-			class:shadow
-			class:outline
-			class:error
-			class:gradient
-			class:rtl={isRTL}
-			on:click={handleClick}
-			on:keydown={handleKeyDown}
-			on:focus={handleFocus}
-			on:blur={handleBlur}
-			on:touchstart={handleTouchStart}
-			on:touchmove={handleTouchMove}
-			on:touchend={handleTouchEnd}
-			style="
-				--active-color: {activeColor};
-				--off-color: {darkOffColor};
-				--animation-duration: {animationDuration}ms;
-				--animation-easing: {animationEasing};
-				--drag-offset: {dragOffset}px;
-			"
-		>
-			<span class="switch-track">
-				<span class="switch-thumb" class:dragging={isDragging}>
-					{#if loading}
-						<span class="spinner-small"></span>
-					{:else if showIcons}
-						<span class="switch-icon">{checked ? onIcon : offIcon}</span>
-					{/if}
-				</span>
-			</span>
-		</button>
+		<div class="switch-wrapper">
+			{#if skeleton}
+				<div class="switch-skeleton switch-skeleton--slider" class:skeleton-shimmer={skeletonAnimation === 'shimmer'} class:skeleton-pulse={skeletonAnimation === 'pulse'} class:skeleton-wave={skeletonAnimation === 'wave'}></div>
+			{:else}
+				<button
+					type="button"
+					role="switch"
+					aria-checked={checked}
+					aria-label={ariaLabel || label}
+					aria-labelledby={label ? `${uniqueID}-label` : undefined}
+					aria-describedby={ariaDescribedBy || (helperText || errorText ? `${uniqueID}-helper` : undefined)}
+					aria-required={required}
+					aria-invalid={error}
+					{disabled}
+					tabindex={tabIndex}
+					class="switch switch--slider"
+					class:checked
+					class:loading
+					class:shadow
+					class:outline
+					class:error
+					class:gradient
+					class:rtl={isRTL}
+					class:pulse
+					class:pulse-subtle={pulse && pulseIntensity === 'subtle'}
+					class:pulse-normal={pulse && pulseIntensity === 'normal'}
+					class:pulse-strong={pulse && pulseIntensity === 'strong'}
+					class:success-animation={showSuccess}
+					class:error-animation={showError}
+					on:click={handleClick}
+					on:keydown={handleKeyDown}
+					on:focus={handleFocus}
+					on:blur={handleBlur}
+					on:touchstart={handleTouchStart}
+					on:touchmove={handleTouchMove}
+					on:touchend={handleTouchEnd}
+					style="
+						--active-color: {activeColor};
+						--off-color: {darkOffColor};
+						--animation-duration: {animationDuration}ms;
+						--animation-easing: {animationEasing};
+						--drag-offset: {dragOffset}px;
+						--pulse-color: {pulseColor || activeColor};
+					"
+				>
+					<span class="switch-track">
+						<span class="switch-thumb" class:dragging={isDragging}>
+							{#if loading}
+								<span class="spinner-small"></span>
+							{:else if showSuccess}
+								<span class="success-icon-small">✓</span>
+							{:else if showIcons}
+								<span class="switch-icon">{checked ? onIcon : offIcon}</span>
+							{/if}
+						</span>
+					</span>
+				</button>
+			{/if}
+			{#if tooltip && isTooltipVisible}
+				<div class="switch-tooltip" class:tooltip-top={tooltipPosition === 'top'} class:tooltip-bottom={tooltipPosition === 'bottom'} class:tooltip-left={tooltipPosition === 'left'} class:tooltip-right={tooltipPosition === 'right'}>
+					{tooltip}
+				</div>
+			{/if}
+		</div>
 		{#if label && labelPosition === 'right'}
-			<span class="switch-label" id="{uniqueID}-label">{label}</span>
+			<span class="switch-label" class:skeleton-text={skeleton} id="{uniqueID}-label">{skeleton ? '' : label}</span>
 		{/if}
 		{#if helperText || errorText}
 			<span class="switch-helper-text" id="{uniqueID}-helper" class:error-text={error}>
@@ -402,63 +562,87 @@
 		class:disabled
 		class:readonly
 		class:dark={isDarkMode}
+		class:skeleton
 		style="font-size: {fontSize}rem; direction: {isRTL ? 'rtl' : 'ltr'};"
+		on:mouseenter={handleMouseEnter}
+		on:mouseleave={handleMouseLeave}
+		role="presentation"
 	>
 		{#if label && labelPosition === 'left'}
-			<span class="switch-label" id="{uniqueID}-label">{label}</span>
+			<span class="switch-label" class:skeleton-text={skeleton} id="{uniqueID}-label">{skeleton ? '' : label}</span>
 		{/if}
-		<button
-			type="button"
-			role="switch"
-			aria-checked={checked}
-			aria-label={ariaLabel || label}
-			aria-labelledby={label ? `${uniqueID}-label` : undefined}
-			aria-describedby={ariaDescribedBy || (helperText || errorText ? `${uniqueID}-helper` : undefined)}
-			aria-required={required}
-			aria-invalid={error}
-			{disabled}
-			tabindex={tabIndex}
-			class="switch switch--modern"
-			class:checked
-			class:loading
-			class:shadow
-			class:outline
-			class:error
-			class:gradient
-			class:rtl={isRTL}
-			on:click={handleClick}
-			on:keydown={handleKeyDown}
-			on:focus={handleFocus}
-			on:blur={handleBlur}
-			on:touchstart={handleTouchStart}
-			on:touchmove={handleTouchMove}
-			on:touchend={handleTouchEnd}
-			style="
-				--active-color: {activeColor};
-				--off-color: {darkOffColor};
-				--animation-duration: {animationDuration}ms;
-				--animation-easing: {animationEasing};
-				--drag-offset: {dragOffset}px;
-			"
-		>
-			<span class="switch-track">
-				<span class="switch-thumb-modern" class:dragging={isDragging}>
-					{#if loading}
-						<span class="spinner-small"></span>
-					{:else if showIcons}
-						<span class="switch-icon-modern">{checked ? onIcon : offIcon}</span>
-					{/if}
-				</span>
-				{#if !loading && showIcons}
-					<span class="track-icons">
-						<span class="track-icon track-icon--on">{onIcon}</span>
-						<span class="track-icon track-icon--off">{offIcon}</span>
+		<div class="switch-wrapper">
+			{#if skeleton}
+				<div class="switch-skeleton switch-skeleton--modern" class:skeleton-shimmer={skeletonAnimation === 'shimmer'} class:skeleton-pulse={skeletonAnimation === 'pulse'} class:skeleton-wave={skeletonAnimation === 'wave'}></div>
+			{:else}
+				<button
+					type="button"
+					role="switch"
+					aria-checked={checked}
+					aria-label={ariaLabel || label}
+					aria-labelledby={label ? `${uniqueID}-label` : undefined}
+					aria-describedby={ariaDescribedBy || (helperText || errorText ? `${uniqueID}-helper` : undefined)}
+					aria-required={required}
+					aria-invalid={error}
+					{disabled}
+					tabindex={tabIndex}
+					class="switch switch--modern"
+					class:checked
+					class:loading
+					class:shadow
+					class:outline
+					class:error
+					class:gradient
+					class:rtl={isRTL}
+					class:pulse
+					class:pulse-subtle={pulse && pulseIntensity === 'subtle'}
+					class:pulse-normal={pulse && pulseIntensity === 'normal'}
+					class:pulse-strong={pulse && pulseIntensity === 'strong'}
+					class:success-animation={showSuccess}
+					class:error-animation={showError}
+					on:click={handleClick}
+					on:keydown={handleKeyDown}
+					on:focus={handleFocus}
+					on:blur={handleBlur}
+					on:touchstart={handleTouchStart}
+					on:touchmove={handleTouchMove}
+					on:touchend={handleTouchEnd}
+					style="
+						--active-color: {activeColor};
+						--off-color: {darkOffColor};
+						--animation-duration: {animationDuration}ms;
+						--animation-easing: {animationEasing};
+						--drag-offset: {dragOffset}px;
+						--pulse-color: {pulseColor || activeColor};
+					"
+				>
+					<span class="switch-track">
+						<span class="switch-thumb-modern" class:dragging={isDragging}>
+							{#if loading}
+								<span class="spinner-small"></span>
+							{:else if showSuccess}
+								<span class="success-icon-small">✓</span>
+							{:else if showIcons}
+								<span class="switch-icon-modern">{checked ? onIcon : offIcon}</span>
+							{/if}
+						</span>
+						{#if !loading && !showSuccess && showIcons}
+							<span class="track-icons">
+								<span class="track-icon track-icon--on">{onIcon}</span>
+								<span class="track-icon track-icon--off">{offIcon}</span>
+							</span>
+						{/if}
 					</span>
-				{/if}
-			</span>
-		</button>
+				</button>
+			{/if}
+			{#if tooltip && isTooltipVisible}
+				<div class="switch-tooltip" class:tooltip-top={tooltipPosition === 'top'} class:tooltip-bottom={tooltipPosition === 'bottom'} class:tooltip-left={tooltipPosition === 'left'} class:tooltip-right={tooltipPosition === 'right'}>
+					{tooltip}
+				</div>
+			{/if}
+		</div>
 		{#if label && labelPosition === 'right'}
-			<span class="switch-label" id="{uniqueID}-label">{label}</span>
+			<span class="switch-label" class:skeleton-text={skeleton} id="{uniqueID}-label">{skeleton ? '' : label}</span>
 		{/if}
 		{#if helperText || errorText}
 			<span class="switch-helper-text" id="{uniqueID}-helper" class:error-text={error}>
@@ -473,55 +657,79 @@
 		class:disabled
 		class:readonly
 		class:dark={isDarkMode}
+		class:skeleton
 		style="font-size: {fontSize}rem; direction: {isRTL ? 'rtl' : 'ltr'};"
+		on:mouseenter={handleMouseEnter}
+		on:mouseleave={handleMouseLeave}
+		role="presentation"
 	>
 		{#if label && labelPosition === 'left'}
-			<span class="switch-label" id="{uniqueID}-label">{label}</span>
+			<span class="switch-label" class:skeleton-text={skeleton} id="{uniqueID}-label">{skeleton ? '' : label}</span>
 		{/if}
-		<button
-			type="button"
-			role="switch"
-			aria-checked={checked}
-			aria-label={ariaLabel || label}
-			aria-labelledby={label ? `${uniqueID}-label` : undefined}
-			aria-describedby={ariaDescribedBy || (helperText || errorText ? `${uniqueID}-helper` : undefined)}
-			aria-required={required}
-			aria-invalid={error}
-			{disabled}
-			tabindex={tabIndex}
-			class="switch switch--material"
-			class:checked
-			class:loading
-			class:shadow
-			class:outline
-			class:error
-			class:gradient
-			class:rtl={isRTL}
-			on:click={handleClick}
-			on:keydown={handleKeyDown}
-			on:focus={handleFocus}
-			on:blur={handleBlur}
-			on:touchstart={handleTouchStart}
-			on:touchmove={handleTouchMove}
-			on:touchend={handleTouchEnd}
-			style="
-				--active-color: {activeColor};
-				--off-color: {darkOffColor};
-				--animation-duration: {animationDuration}ms;
-				--animation-easing: {animationEasing};
-				--drag-offset: {dragOffset}px;
-			"
-		>
-			<span class="switch-track-material">
-				<span class="switch-thumb-material" class:dragging={isDragging}>
-					{#if loading}
-						<span class="spinner-small"></span>
-					{/if}
-				</span>
-			</span>
-		</button>
+		<div class="switch-wrapper">
+			{#if skeleton}
+				<div class="switch-skeleton switch-skeleton--material" class:skeleton-shimmer={skeletonAnimation === 'shimmer'} class:skeleton-pulse={skeletonAnimation === 'pulse'} class:skeleton-wave={skeletonAnimation === 'wave'}></div>
+			{:else}
+				<button
+					type="button"
+					role="switch"
+					aria-checked={checked}
+					aria-label={ariaLabel || label}
+					aria-labelledby={label ? `${uniqueID}-label` : undefined}
+					aria-describedby={ariaDescribedBy || (helperText || errorText ? `${uniqueID}-helper` : undefined)}
+					aria-required={required}
+					aria-invalid={error}
+					{disabled}
+					tabindex={tabIndex}
+					class="switch switch--material"
+					class:checked
+					class:loading
+					class:shadow
+					class:outline
+					class:error
+					class:gradient
+					class:rtl={isRTL}
+					class:pulse
+					class:pulse-subtle={pulse && pulseIntensity === 'subtle'}
+					class:pulse-normal={pulse && pulseIntensity === 'normal'}
+					class:pulse-strong={pulse && pulseIntensity === 'strong'}
+					class:success-animation={showSuccess}
+					class:error-animation={showError}
+					on:click={handleClick}
+					on:keydown={handleKeyDown}
+					on:focus={handleFocus}
+					on:blur={handleBlur}
+					on:touchstart={handleTouchStart}
+					on:touchmove={handleTouchMove}
+					on:touchend={handleTouchEnd}
+					style="
+						--active-color: {activeColor};
+						--off-color: {darkOffColor};
+						--animation-duration: {animationDuration}ms;
+						--animation-easing: {animationEasing};
+						--drag-offset: {dragOffset}px;
+						--pulse-color: {pulseColor || activeColor};
+					"
+				>
+					<span class="switch-track-material">
+						<span class="switch-thumb-material" class:dragging={isDragging}>
+							{#if loading}
+								<span class="spinner-small"></span>
+							{:else if showSuccess}
+								<span class="success-icon-small">✓</span>
+							{/if}
+						</span>
+					</span>
+				</button>
+			{/if}
+			{#if tooltip && isTooltipVisible}
+				<div class="switch-tooltip" class:tooltip-top={tooltipPosition === 'top'} class:tooltip-bottom={tooltipPosition === 'bottom'} class:tooltip-left={tooltipPosition === 'left'} class:tooltip-right={tooltipPosition === 'right'}>
+					{tooltip}
+				</div>
+			{/if}
+		</div>
 		{#if label && labelPosition === 'right'}
-			<span class="switch-label" id="{uniqueID}-label">{label}</span>
+			<span class="switch-label" class:skeleton-text={skeleton} id="{uniqueID}-label">{skeleton ? '' : label}</span>
 		{/if}
 		{#if helperText || errorText}
 			<span class="switch-helper-text" id="{uniqueID}-helper" class:error-text={error}>
@@ -536,47 +744,67 @@
 		class:disabled
 		class:readonly
 		class:dark={isDarkMode}
+		class:skeleton
 		style="font-size: {fontSize}rem; direction: {isRTL ? 'rtl' : 'ltr'};"
+		on:mouseenter={handleMouseEnter}
+		on:mouseleave={handleMouseLeave}
+		role="presentation"
 	>
-		<div
-			role="radiogroup"
-			class="switch-multi"
-			aria-labelledby="{uniqueID}-legend"
-			aria-describedby={ariaDescribedBy || undefined}
-			style="
-				--active-color: {activeColor};
-				--off-color: {darkOffColor};
-				--animation-duration: {animationDuration}ms;
-				--animation-easing: {animationEasing};
-			"
-		>
-			{#if label}
-				<div class="switch-multi-legend" id="{uniqueID}-legend">{label}</div>
+		<div class="switch-wrapper">
+			{#if skeleton}
+				<div class="switch-skeleton switch-skeleton--multi" class:skeleton-shimmer={skeletonAnimation === 'shimmer'} class:skeleton-pulse={skeletonAnimation === 'pulse'} class:skeleton-wave={skeletonAnimation === 'wave'}></div>
+			{:else}
+				<div
+					role="radiogroup"
+					class="switch-multi"
+					class:pulse
+					class:pulse-subtle={pulse && pulseIntensity === 'subtle'}
+					class:pulse-normal={pulse && pulseIntensity === 'normal'}
+					class:pulse-strong={pulse && pulseIntensity === 'strong'}
+					aria-labelledby="{uniqueID}-legend"
+					aria-describedby={ariaDescribedBy || undefined}
+					style="
+						--active-color: {activeColor};
+						--off-color: {darkOffColor};
+						--animation-duration: {animationDuration}ms;
+						--animation-easing: {animationEasing};
+						--pulse-color: {pulseColor || activeColor};
+					"
+				>
+					{#if label}
+						<div class="switch-multi-legend" id="{uniqueID}-legend">{label}</div>
+					{/if}
+					<div class="switch-multi-options" class:shadow class:outline class:gradient>
+						{#each options as option, index}
+							<input
+								type="radio"
+								id="{uniqueID}-{option}"
+								{name}
+								value={option}
+								bind:group={value}
+								on:change={handleMultiChange}
+								{disabled}
+								{required}
+								tabindex={tabIndex}
+								class="switch-multi-input"
+							/>
+							<label
+								for="{uniqueID}-{option}"
+								class="switch-multi-label"
+								class:first={index === 0}
+								class:last={index === options.length - 1}
+							>
+								{option}
+							</label>
+						{/each}
+					</div>
+				</div>
 			{/if}
-			<div class="switch-multi-options" class:shadow class:outline class:gradient>
-				{#each options as option, index}
-					<input
-						type="radio"
-						id="{uniqueID}-{option}"
-						{name}
-						value={option}
-						bind:group={value}
-						on:change={handleMultiChange}
-						{disabled}
-						{required}
-						tabindex={tabIndex}
-						class="switch-multi-input"
-					/>
-					<label
-						for="{uniqueID}-{option}"
-						class="switch-multi-label"
-						class:first={index === 0}
-						class:last={index === options.length - 1}
-					>
-						{option}
-					</label>
-				{/each}
-			</div>
+			{#if tooltip && isTooltipVisible}
+				<div class="switch-tooltip" class:tooltip-top={tooltipPosition === 'top'} class:tooltip-bottom={tooltipPosition === 'bottom'} class:tooltip-left={tooltipPosition === 'left'} class:tooltip-right={tooltipPosition === 'right'}>
+					{tooltip}
+				</div>
+			{/if}
 		</div>
 		{#if helperText || errorText}
 			<span class="switch-helper-text" id="{uniqueID}-helper" class:error-text={error}>
@@ -1048,5 +1276,343 @@
 	.switch-multi-input:checked + .switch-multi-label:hover {
 		background-color: var(--active-color);
 		opacity: 0.9;
+	}
+
+	/* v2.3.0 - Switch Wrapper */
+	.switch-wrapper {
+		position: relative;
+		display: inline-flex;
+		align-items: center;
+	}
+
+	/* v2.3.0 - Pulse Animation */
+	.switch.pulse,
+	.switch-multi.pulse {
+		animation: pulse-animation 2s infinite;
+	}
+
+	.switch.pulse-subtle,
+	.switch-multi.pulse-subtle {
+		animation: pulse-animation-subtle 2s infinite;
+	}
+
+	.switch.pulse-normal,
+	.switch-multi.pulse-normal {
+		animation: pulse-animation-normal 2s infinite;
+	}
+
+	.switch.pulse-strong,
+	.switch-multi.pulse-strong {
+		animation: pulse-animation-strong 2s infinite;
+	}
+
+	@keyframes pulse-animation-subtle {
+		0%, 100% {
+			box-shadow: 0 0 0 0 var(--pulse-color);
+		}
+		50% {
+			box-shadow: 0 0 0 4px color-mix(in srgb, var(--pulse-color) 30%, transparent);
+		}
+	}
+
+	@keyframes pulse-animation-normal {
+		0%, 100% {
+			box-shadow: 0 0 0 0 var(--pulse-color);
+		}
+		50% {
+			box-shadow: 0 0 0 8px color-mix(in srgb, var(--pulse-color) 50%, transparent);
+		}
+	}
+
+	@keyframes pulse-animation-strong {
+		0%, 100% {
+			box-shadow: 0 0 0 0 var(--pulse-color);
+		}
+		50% {
+			box-shadow: 0 0 0 12px color-mix(in srgb, var(--pulse-color) 70%, transparent);
+		}
+	}
+
+	@keyframes pulse-animation {
+		0%, 100% {
+			box-shadow: 0 0 0 0 var(--pulse-color);
+		}
+		50% {
+			box-shadow: 0 0 0 8px color-mix(in srgb, var(--pulse-color) 50%, transparent);
+		}
+	}
+
+	/* v2.3.0 - Success Animation */
+	.switch.success-animation {
+		animation: success-pop 0.3s ease-out;
+	}
+
+	.switch.success-animation .switch-track,
+	.switch.success-animation .switch-track-material {
+		background-color: #10B981 !important;
+	}
+
+	@keyframes success-pop {
+		0% {
+			transform: scale(1);
+		}
+		50% {
+			transform: scale(1.05);
+		}
+		100% {
+			transform: scale(1);
+		}
+	}
+
+	.success-icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: white;
+		font-size: 0.9em;
+		animation: success-checkmark 0.3s ease-out;
+	}
+
+	.success-icon-small {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: #10B981;
+		font-size: 0.7em;
+		font-weight: bold;
+		animation: success-checkmark 0.3s ease-out;
+	}
+
+	@keyframes success-checkmark {
+		0% {
+			transform: scale(0);
+			opacity: 0;
+		}
+		50% {
+			transform: scale(1.2);
+		}
+		100% {
+			transform: scale(1);
+			opacity: 1;
+		}
+	}
+
+	/* v2.3.0 - Error Animation */
+	.switch.error-animation {
+		animation: error-shake 0.4s ease-out;
+	}
+
+	@keyframes error-shake {
+		0%, 100% {
+			transform: translateX(0);
+		}
+		20% {
+			transform: translateX(-4px);
+		}
+		40% {
+			transform: translateX(4px);
+		}
+		60% {
+			transform: translateX(-4px);
+		}
+		80% {
+			transform: translateX(4px);
+		}
+	}
+
+	/* v2.3.0 - Skeleton Loading */
+	.switch-skeleton {
+		background: linear-gradient(90deg, #E5E7EB 25%, #F3F4F6 50%, #E5E7EB 75%);
+		background-size: 200% 100%;
+		border-radius: 1em;
+	}
+
+	.switch-skeleton--slider,
+	.switch-skeleton--modern {
+		width: 3.5em;
+		height: 2em;
+	}
+
+	.switch-skeleton--modern {
+		width: 4em;
+		height: 2.2em;
+	}
+
+	.switch-skeleton--inner {
+		width: 4em;
+		height: 2em;
+		border-radius: 0.5em;
+	}
+
+	.switch-skeleton--material {
+		width: 3.5em;
+		height: 1.5em;
+		border-radius: 0.75em;
+	}
+
+	.switch-skeleton--multi {
+		width: 12em;
+		height: 2.5em;
+		border-radius: 0.5em;
+	}
+
+	.skeleton-text {
+		background: linear-gradient(90deg, #E5E7EB 25%, #F3F4F6 50%, #E5E7EB 75%);
+		background-size: 200% 100%;
+		border-radius: 0.25em;
+		min-width: 4em;
+		min-height: 1em;
+		color: transparent !important;
+	}
+
+	.skeleton-shimmer {
+		animation: skeleton-shimmer 1.5s infinite;
+	}
+
+	.skeleton-pulse {
+		animation: skeleton-pulse 1.5s infinite;
+	}
+
+	.skeleton-wave {
+		animation: skeleton-wave 1.5s infinite;
+	}
+
+	@keyframes skeleton-shimmer {
+		0% {
+			background-position: 200% 0;
+		}
+		100% {
+			background-position: -200% 0;
+		}
+	}
+
+	@keyframes skeleton-pulse {
+		0%, 100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.5;
+		}
+	}
+
+	@keyframes skeleton-wave {
+		0% {
+			background-position: 200% 0;
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.7;
+		}
+		100% {
+			background-position: -200% 0;
+			opacity: 1;
+		}
+	}
+
+	/* v2.3.0 - Dark mode skeleton */
+	.switch-container.dark .switch-skeleton,
+	.switch-container.dark .skeleton-text {
+		background: linear-gradient(90deg, #374151 25%, #4B5563 50%, #374151 75%);
+		background-size: 200% 100%;
+	}
+
+	/* v2.3.0 - Tooltip */
+	.switch-tooltip {
+		position: absolute;
+		background-color: #1F2937;
+		color: white;
+		padding: 0.5em 0.75em;
+		border-radius: 0.375em;
+		font-size: 0.75em;
+		white-space: nowrap;
+		z-index: 1000;
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+		animation: tooltip-fade-in 0.2s ease-out;
+		pointer-events: none;
+	}
+
+	.switch-tooltip::after {
+		content: '';
+		position: absolute;
+		border: 6px solid transparent;
+	}
+
+	.switch-tooltip.tooltip-top {
+		bottom: calc(100% + 8px);
+		left: 50%;
+		transform: translateX(-50%);
+	}
+
+	.switch-tooltip.tooltip-top::after {
+		top: 100%;
+		left: 50%;
+		transform: translateX(-50%);
+		border-top-color: #1F2937;
+	}
+
+	.switch-tooltip.tooltip-bottom {
+		top: calc(100% + 8px);
+		left: 50%;
+		transform: translateX(-50%);
+	}
+
+	.switch-tooltip.tooltip-bottom::after {
+		bottom: 100%;
+		left: 50%;
+		transform: translateX(-50%);
+		border-bottom-color: #1F2937;
+	}
+
+	.switch-tooltip.tooltip-left {
+		right: calc(100% + 8px);
+		top: 50%;
+		transform: translateY(-50%);
+	}
+
+	.switch-tooltip.tooltip-left::after {
+		left: 100%;
+		top: 50%;
+		transform: translateY(-50%);
+		border-left-color: #1F2937;
+	}
+
+	.switch-tooltip.tooltip-right {
+		left: calc(100% + 8px);
+		top: 50%;
+		transform: translateY(-50%);
+	}
+
+	.switch-tooltip.tooltip-right::after {
+		right: 100%;
+		top: 50%;
+		transform: translateY(-50%);
+		border-right-color: #1F2937;
+	}
+
+	@keyframes tooltip-fade-in {
+		0% {
+			opacity: 0;
+			transform: translateX(-50%) translateY(4px);
+		}
+		100% {
+			opacity: 1;
+			transform: translateX(-50%) translateY(0);
+		}
+	}
+
+	.switch-tooltip.tooltip-left,
+	.switch-tooltip.tooltip-right {
+		animation: tooltip-fade-in-horizontal 0.2s ease-out;
+	}
+
+	@keyframes tooltip-fade-in-horizontal {
+		0% {
+			opacity: 0;
+			transform: translateY(-50%) translateX(4px);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(-50%) translateX(0);
+		}
 	}
 </style>
