@@ -1,3 +1,3 @@
-import Select from './src/lib/Select.svelte'
+import Switch from './src/lib/Switch.svelte'
 
-export default Select;
+export default Switch;

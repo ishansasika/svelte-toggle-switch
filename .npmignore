@@ -1,17 +1,28 @@
 # Demo application (not needed in npm package)
 demo/
 
-# Source files (only publish built files in dist/)
+# Source files (only publish component source in src/lib/)
 src/App.svelte
 src/main.ts
+src/main.js
 src/vite-env.d.ts
 src/app.css
+src/assets/
 
 # Build and config files
 vite.config.ts
+vite.config.js
 tsconfig.json
 tsconfig.node.json
 svelte.config.js
+jsconfig.json
+index.html
+
+# Public folder (demo assets)
+public/
+
+# Old tarballs from previous releases
+*.tgz
 
 # Firebase hosting
 .firebaserc
@@ -27,6 +38,9 @@ firebase-debug.*.log
 .gitignore
 .gitattributes
 CLAUDE.md
+
+# Claude AI settings
+.claude/
 
 # IDE and OS files
 .vscode/
@@ -50,9 +64,13 @@ pnpm-debug.log*
 *.temp
 .cache/
 
+# Dist folder (use svelte source, not built files for Svelte packages)
+dist/
+
 # Keep these in the package:
 # - package.json
 # - README.md
 # - LICENSE
 # - CHANGELOG.md
+# - index.js (entry point)
 # - src/lib/ (component source)
