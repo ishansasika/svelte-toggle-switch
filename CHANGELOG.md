@@ -5,6 +5,61 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-01-16
+
+### Added
+- **Pulse Animation**:
+  - `pulse` prop to enable attention-grabbing glow effect
+  - `pulseIntensity` prop with `'subtle'`, `'normal'`, and `'strong'` options
+  - `pulseColor` prop for custom glow color
+  - CSS keyframe animations with color-mix for smooth gradients
+  - Works across all 5 design variants
+- **Success Animation**:
+  - `showSuccessAnimation` prop to enable visual feedback on toggle
+  - Animated checkmark icon with pop effect
+  - `successDuration` prop to customize animation length (default 1500ms)
+  - Green success state with smooth transitions
+- **Error Animation**:
+  - `showErrorAnimation` prop for shake effect on failed operations
+  - Horizontal shake keyframe animation
+  - Useful for async toggle operations that may fail
+- **Haptic Feedback**:
+  - `hapticFeedback` prop to enable vibration on mobile devices
+  - `hapticPattern` prop with presets: `'light'` (10ms), `'medium'` (20ms), `'heavy'` (30-10-30ms)
+  - Custom pattern support via number array (e.g., `[15, 5, 15, 5, 30]`)
+  - Uses Vibration API with graceful fallback
+- **Skeleton Loading State**:
+  - `skeleton` prop to show loading placeholder instead of switch
+  - `skeletonAnimation` prop with `'shimmer'`, `'pulse'`, and `'wave'` options
+  - Design-specific skeleton sizes matching each variant
+  - Dark mode aware skeleton colors
+  - Label text also shows skeleton state
+- **Tooltip Support**:
+  - `tooltip` prop to show hover tooltip text
+  - `tooltipPosition` prop with `'top'`, `'bottom'`, `'left'`, `'right'` options
+  - `tooltipDelay` prop to customize show delay (default 300ms)
+  - Arrow pointer indicating switch
+  - Smooth fade-in animation
+- **Demo Application Enhancements**:
+  - Dedicated v2.3.0 features showcase section with green gradient theme
+  - 20+ interactive examples for new features
+  - Combined features demonstration
+  - Reload button for skeleton demo
+  - Feature descriptions for each section
+
+### Changed
+- Updated all click/touch handlers to respect skeleton state
+- Enhanced internal state management for animations
+- Added switch-wrapper element for tooltip positioning
+- Improved CSS architecture with v2.3.0 comment sections
+
+### Technical
+- Added presentation role to container for accessibility
+- Implemented SSR-safe navigator checks for haptic feedback
+- Created animation keyframes for pulse, success, error, and skeleton
+- Added tooltip positioning with CSS transforms
+- Maintained full backward compatibility with v2.2.0
+
 ## [2.2.0] - 2026-01-06
 
 ### Added

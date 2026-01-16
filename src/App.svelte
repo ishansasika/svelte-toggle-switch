@@ -35,6 +35,21 @@
 	let gradientSwitch = false;
 	let swipeSwitch = false;
 	let rtlSwitch = false;
+
+	// v2.3.0 - New features
+	let pulseSwitch = false;
+	let successSwitch = false;
+	let hapticSwitch = false;
+	let skeletonLoading = true;
+	let tooltipSwitch = false;
+
+	// Simulate loading
+	function simulateLoading() {
+		skeletonLoading = true;
+		setTimeout(() => {
+			skeletonLoading = false;
+		}, 2000);
+	}
 </script>
 
 <main>
@@ -474,9 +489,322 @@
 		</div>
 	</section>
 
+	<section class="feature-highlight feature-highlight--new">
+		<h2>🎉 v2.3.0 New Features</h2>
+
+		<div class="feature-section">
+			<h3>Pulse Animation</h3>
+			<p class="feature-description">Draw attention to important toggles with a pulsing glow effect.</p>
+			<div class="grid">
+				<div class="card">
+					<h4>Subtle Pulse</h4>
+					<Switch
+						bind:value={pulseSwitch}
+						label="Notifications"
+						pulse={true}
+						pulseIntensity="subtle"
+						colorScheme="blue"
+					/>
+					<p class="info">Gentle attention grabber</p>
+				</div>
+
+				<div class="card">
+					<h4>Normal Pulse</h4>
+					<Switch
+						bind:value={pulseSwitch}
+						label="New Feature"
+						pulse={true}
+						pulseIntensity="normal"
+						colorScheme="green"
+					/>
+					<p class="info">Default intensity</p>
+				</div>
+
+				<div class="card">
+					<h4>Strong Pulse</h4>
+					<Switch
+						bind:value={pulseSwitch}
+						label="Important!"
+						pulse={true}
+						pulseIntensity="strong"
+						colorScheme="red"
+					/>
+					<p class="info">Maximum attention</p>
+				</div>
+
+				<div class="card">
+					<h4>Custom Pulse Color</h4>
+					<Switch
+						bind:value={pulseSwitch}
+						label="Custom Glow"
+						pulse={true}
+						pulseColor="#FF6B6B"
+						colorScheme="pink"
+					/>
+					<p class="info">pulseColor="#FF6B6B"</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="feature-section">
+			<h3>Success Animation</h3>
+			<p class="feature-description">Visual feedback with checkmark animation when toggle action succeeds.</p>
+			<div class="grid">
+				<div class="card">
+					<h4>Slider with Success</h4>
+					<Switch
+						bind:value={successSwitch}
+						label="Enable Feature"
+						showSuccessAnimation={true}
+						colorScheme="green"
+					/>
+					<p class="info">Shows ✓ on toggle</p>
+				</div>
+
+				<div class="card">
+					<h4>Modern with Success</h4>
+					<Switch
+						bind:value={successSwitch}
+						label="Auto-save"
+						design="modern"
+						showSuccessAnimation={true}
+						colorScheme="blue"
+					/>
+					<p class="info">Pop effect + checkmark</p>
+				</div>
+
+				<div class="card">
+					<h4>Material with Success</h4>
+					<Switch
+						bind:value={successSwitch}
+						label="Sync enabled"
+						design="material"
+						showSuccessAnimation={true}
+						successDuration={2000}
+						colorScheme="purple"
+					/>
+					<p class="info">2 second animation</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="feature-section">
+			<h3>Haptic Feedback (Mobile)</h3>
+			<p class="feature-description">Vibration feedback on mobile devices for tactile response.</p>
+			<div class="grid">
+				<div class="card">
+					<h4>Light Haptic</h4>
+					<Switch
+						bind:value={hapticSwitch}
+						label="Light vibration"
+						hapticFeedback={true}
+						hapticPattern="light"
+						colorScheme="blue"
+						size="lg"
+					/>
+					<p class="info">10ms vibration</p>
+				</div>
+
+				<div class="card">
+					<h4>Medium Haptic</h4>
+					<Switch
+						bind:value={hapticSwitch}
+						label="Medium vibration"
+						hapticFeedback={true}
+						hapticPattern="medium"
+						colorScheme="green"
+						size="lg"
+					/>
+					<p class="info">20ms vibration</p>
+				</div>
+
+				<div class="card">
+					<h4>Heavy Haptic</h4>
+					<Switch
+						bind:value={hapticSwitch}
+						label="Heavy vibration"
+						hapticFeedback={true}
+						hapticPattern="heavy"
+						colorScheme="orange"
+						size="lg"
+					/>
+					<p class="info">Pattern: 30-10-30ms</p>
+				</div>
+
+				<div class="card">
+					<h4>Custom Pattern</h4>
+					<Switch
+						bind:value={hapticSwitch}
+						label="Custom pattern"
+						hapticFeedback={true}
+						hapticPattern={[15, 5, 15, 5, 30]}
+						colorScheme="purple"
+						size="lg"
+					/>
+					<p class="info">[15, 5, 15, 5, 30]</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="feature-section">
+			<h3>Skeleton Loading</h3>
+			<p class="feature-description">Beautiful loading placeholders while fetching data.</p>
+			<div class="grid">
+				<div class="card">
+					<h4>Shimmer Animation</h4>
+					<Switch
+						bind:value={basicSwitch}
+						label="Settings"
+						skeleton={skeletonLoading}
+						skeletonAnimation="shimmer"
+					/>
+					<p class="info">Default shimmer effect</p>
+				</div>
+
+				<div class="card">
+					<h4>Pulse Animation</h4>
+					<Switch
+						bind:value={basicSwitch}
+						label="Preferences"
+						skeleton={skeletonLoading}
+						skeletonAnimation="pulse"
+						design="modern"
+					/>
+					<p class="info">Fade in/out effect</p>
+				</div>
+
+				<div class="card">
+					<h4>Wave Animation</h4>
+					<Switch
+						bind:value={basicSwitch}
+						label="Features"
+						skeleton={skeletonLoading}
+						skeletonAnimation="wave"
+						design="material"
+					/>
+					<p class="info">Combined shimmer + pulse</p>
+				</div>
+
+				<div class="card">
+					<h4>Reload Demo</h4>
+					<button class="reload-btn" on:click={simulateLoading}>
+						🔄 Reload Skeletons
+					</button>
+					<p class="info">Click to see skeleton again</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="feature-section">
+			<h3>Tooltip Support</h3>
+			<p class="feature-description">Built-in tooltips to provide additional context.</p>
+			<div class="grid">
+				<div class="card">
+					<h4>Top Tooltip</h4>
+					<Switch
+						bind:value={tooltipSwitch}
+						label="Hover me"
+						tooltip="Enable this feature to unlock premium content"
+						tooltipPosition="top"
+						colorScheme="blue"
+					/>
+					<p class="info">Tooltip appears above</p>
+				</div>
+
+				<div class="card">
+					<h4>Bottom Tooltip</h4>
+					<Switch
+						bind:value={tooltipSwitch}
+						label="Hover me"
+						tooltip="This setting affects all users"
+						tooltipPosition="bottom"
+						colorScheme="green"
+					/>
+					<p class="info">Tooltip appears below</p>
+				</div>
+
+				<div class="card">
+					<h4>Left Tooltip</h4>
+					<Switch
+						bind:value={tooltipSwitch}
+						label="Hover me"
+						tooltip="Danger zone!"
+						tooltipPosition="left"
+						colorScheme="red"
+					/>
+					<p class="info">Tooltip appears left</p>
+				</div>
+
+				<div class="card">
+					<h4>Custom Delay</h4>
+					<Switch
+						bind:value={tooltipSwitch}
+						label="Hover me"
+						tooltip="Quick tooltip"
+						tooltipPosition="right"
+						tooltipDelay={100}
+						colorScheme="purple"
+					/>
+					<p class="info">100ms delay</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="feature-section">
+			<h3>Combined Features</h3>
+			<p class="feature-description">Mix and match features for the perfect toggle experience.</p>
+			<div class="grid">
+				<div class="card">
+					<h4>Full Featured</h4>
+					<Switch
+						bind:value={successSwitch}
+						label="Premium Mode"
+						pulse={true}
+						pulseIntensity="normal"
+						showSuccessAnimation={true}
+						hapticFeedback={true}
+						tooltip="Unlock all premium features"
+						gradient={true}
+						gradientPreset="ocean"
+						size="lg"
+					/>
+					<p class="info">All features combined</p>
+				</div>
+
+				<div class="card">
+					<h4>Mobile Optimized</h4>
+					<Switch
+						bind:value={hapticSwitch}
+						label="Touch Toggle"
+						swipeToToggle={true}
+						hapticFeedback={true}
+						showSuccessAnimation={true}
+						colorScheme="green"
+						size="xl"
+					/>
+					<p class="info">Swipe + haptic + success</p>
+				</div>
+
+				<div class="card">
+					<h4>Attention + Info</h4>
+					<Switch
+						bind:value={pulseSwitch}
+						label="New Feature"
+						pulse={true}
+						pulseIntensity="strong"
+						tooltip="Try our new feature!"
+						tooltipPosition="bottom"
+						colorScheme="orange"
+					/>
+					<p class="info">Pulse + tooltip</p>
+				</div>
+			</div>
+		</div>
+	</section>
+
 	<footer>
 		<p>Built with Svelte • TypeScript • Vite</p>
-		<p>Version 2.2.0 with Dark Mode, Gradients, Touch Gestures & RTL Support</p>
+		<p>Version 2.3.0 with Pulse, Success Animations, Haptic Feedback, Skeleton Loading & Tooltips</p>
 		<p>
 			<a href="https://github.com/ishansasika/svelte-toggle-switch" target="_blank" rel="noopener">
 				View on GitHub
@@ -626,6 +954,46 @@
 		margin-bottom: 1.25rem;
 		padding-bottom: 0.5rem;
 		border-bottom: 2px solid #e5e7eb;
+	}
+
+	.feature-description {
+		color: #6b7280;
+		font-size: 0.9rem;
+		margin: -0.75rem 0 1.25rem 0;
+	}
+
+	/* v2.3.0 Feature Highlight Section */
+	.feature-highlight--new {
+		background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+	}
+
+	.feature-highlight--new h2 {
+		color: white;
+		border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+	}
+
+	.reload-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.75rem 1.5rem;
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		color: white;
+		border: none;
+		border-radius: 0.5rem;
+		font-size: 1rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition: transform 0.2s, box-shadow 0.2s;
+	}
+
+	.reload-btn:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+	}
+
+	.reload-btn:active {
+		transform: translateY(0);
 	}
 
 	footer {

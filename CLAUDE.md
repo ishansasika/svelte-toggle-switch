@@ -6,6 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is an NPM package providing a comprehensive, accessible toggle switch component for Svelte applications. The package has been completely rewritten in version 2.0 with TypeScript support, multiple design variants, extensive customization options, and enhanced accessibility features.
 
+### Version 2.3.0 Features
+- **Pulse Animation**: Attention-grabbing glow effects with subtle/normal/strong intensity
+- **Success/Error Animations**: Visual feedback with checkmark animation and shake effects
+- **Haptic Feedback**: Vibration patterns on mobile devices (light/medium/heavy/custom)
+- **Skeleton Loading**: Shimmer/pulse/wave loading placeholders
+- **Tooltip Support**: Built-in tooltips with 4 position options
+
 ## Development Commands
 
 ```bash
@@ -71,6 +78,21 @@ The component uses a comprehensive props-based API with full TypeScript support:
 #### Animation Customization
 - `animationDuration`: Transition duration in ms (default 300)
 - `animationEasing`: CSS easing function (default 'ease-in-out')
+
+#### v2.3.0 Features
+- `pulse`: Enable pulsing glow animation
+- `pulseIntensity`: Pulse strength ('subtle'/'normal'/'strong')
+- `pulseColor`: Custom glow color
+- `showSuccessAnimation`: Enable checkmark animation on toggle
+- `showErrorAnimation`: Enable shake animation on error
+- `successDuration`: Duration of success animation (default 1500ms)
+- `hapticFeedback`: Enable vibration on mobile
+- `hapticPattern`: Vibration pattern ('light'/'medium'/'heavy'/custom array)
+- `skeleton`: Show loading placeholder
+- `skeletonAnimation`: Loading animation type ('shimmer'/'pulse'/'wave')
+- `tooltip`: Tooltip text to show on hover
+- `tooltipPosition`: Position ('top'/'bottom'/'left'/'right')
+- `tooltipDelay`: Delay before showing tooltip (default 300ms)
 
 #### Accessibility
 - `ariaLabel`: Custom ARIA label

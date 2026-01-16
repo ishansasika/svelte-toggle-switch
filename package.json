@@ -1,7 +1,7 @@
 {
   "name": "svelte-toggle-switch",
   "private": false,
-  "version": "2.2.0",
+  "version": "2.3.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -42,7 +42,12 @@
     "touch gestures",
     "rtl",
     "swipe to toggle",
-    "mobile friendly"
+    "mobile friendly",
+    "pulse animation",
+    "haptic feedback",
+    "skeleton loading",
+    "tooltip",
+    "success animation"
   ],
   "author": "Ishan Karunaratne <ishansasika@gmail.com> (https://ishansasika.dev)",
   "license": "MIT",
