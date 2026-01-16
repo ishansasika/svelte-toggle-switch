@@ -17,6 +17,11 @@ A comprehensive, accessible, and highly customizable toggle switch component for
 🌈 **Gradient Colors**: 5 beautiful gradient presets + custom gradients (v2.2.0)\
 👆 **Touch Gestures**: Swipe to toggle on mobile devices (v2.2.0)\
 🌐 **RTL Support**: Full right-to-left language support (v2.2.0)\
+💫 **Pulse Animation**: Draw attention with pulsing glow effects (v2.3.0)\
+✅ **Success Animation**: Visual feedback with checkmark animation (v2.3.0)\
+📳 **Haptic Feedback**: Vibration feedback on mobile devices (v2.3.0)\
+💀 **Skeleton Loading**: Shimmer/pulse placeholders while loading (v2.3.0)\
+💬 **Tooltip Support**: Built-in tooltips with positioning (v2.3.0)\
 🚀 **Modern Stack**: Built with Svelte 5, Vite 6, and TypeScript 5
 
 ## Installation
@@ -46,6 +51,100 @@ pnpm add svelte-toggle-switch
 </script>
 
 <Switch bind:value={enabled} label="Enable notifications" />
+```
+
+## New in v2.3.0
+
+### 💫 Pulse Animation
+
+Draw attention to important toggles with a pulsing glow effect.
+
+```svelte
+<!-- Subtle pulse -->
+<Switch bind:value={enabled} pulse={true} pulseIntensity="subtle" label="Notifications" />
+
+<!-- Normal pulse (default) -->
+<Switch bind:value={enabled} pulse={true} pulseIntensity="normal" label="New Feature" />
+
+<!-- Strong pulse -->
+<Switch bind:value={enabled} pulse={true} pulseIntensity="strong" label="Important!" />
+
+<!-- Custom pulse color -->
+<Switch bind:value={enabled} pulse={true} pulseColor="#FF6B6B" label="Custom Glow" />
+```
+
+### ✅ Success Animation
+
+Visual feedback with checkmark animation when toggle action succeeds.
+
+```svelte
+<!-- Enable success animation -->
+<Switch bind:value={enabled} showSuccessAnimation={true} label="Save changes" />
+
+<!-- Custom animation duration -->
+<Switch
+  bind:value={enabled}
+  showSuccessAnimation={true}
+  successDuration={2000}
+  label="Long feedback"
+/>
+```
+
+### 📳 Haptic Feedback
+
+Vibration feedback on mobile devices using the Vibration API.
+
+```svelte
+<!-- Light haptic -->
+<Switch bind:value={enabled} hapticFeedback={true} hapticPattern="light" label="Tap" />
+
+<!-- Medium haptic -->
+<Switch bind:value={enabled} hapticFeedback={true} hapticPattern="medium" label="Touch" />
+
+<!-- Heavy haptic -->
+<Switch bind:value={enabled} hapticFeedback={true} hapticPattern="heavy" label="Strong" />
+
+<!-- Custom vibration pattern (ms) -->
+<Switch
+  bind:value={enabled}
+  hapticFeedback={true}
+  hapticPattern={[15, 5, 15, 5, 30]}
+  label="Pattern"
+/>
+```
+
+### 💀 Skeleton Loading
+
+Beautiful loading placeholders while fetching data.
+
+```svelte
+<!-- Shimmer animation (default) -->
+<Switch bind:value={enabled} skeleton={isLoading} skeletonAnimation="shimmer" label="Settings" />
+
+<!-- Pulse animation -->
+<Switch bind:value={enabled} skeleton={isLoading} skeletonAnimation="pulse" label="Loading..." />
+
+<!-- Wave animation -->
+<Switch bind:value={enabled} skeleton={isLoading} skeletonAnimation="wave" label="Fetching..." />
+```
+
+### 💬 Tooltip Support
+
+Built-in tooltips to provide additional context.
+
+```svelte
+<!-- Top tooltip (default) -->
+<Switch bind:value={enabled} tooltip="Enable this feature" tooltipPosition="top" label="Feature" />
+
+<!-- Bottom tooltip -->
+<Switch bind:value={enabled} tooltip="Affects all users" tooltipPosition="bottom" label="Global" />
+
+<!-- Left/right tooltips -->
+<Switch bind:value={enabled} tooltip="Warning!" tooltipPosition="left" label="Danger" />
+<Switch bind:value={enabled} tooltip="Info" tooltipPosition="right" label="Setting" />
+
+<!-- Custom delay -->
+<Switch bind:value={enabled} tooltip="Quick tip" tooltipDelay={100} label="Fast" />
 ```
 
 ## New in v2.2.0
@@ -339,6 +438,19 @@ Add custom icons to your toggles.
 | `swipeToToggle` | `boolean` | `false` | Enable swipe gesture to toggle (mobile) (v2.2.0) |
 | `swipeThreshold` | `number` | `50` | Swipe distance in pixels to trigger toggle (v2.2.0) |
 | `dir` | `'ltr' \| 'rtl' \| 'auto'` | `'auto'` | Text direction for RTL support (v2.2.0) |
+| `pulse` | `boolean` | `false` | Enable pulse animation (v2.3.0) |
+| `pulseIntensity` | `'subtle' \| 'normal' \| 'strong'` | `'normal'` | Pulse animation intensity (v2.3.0) |
+| `pulseColor` | `string` | `''` | Custom pulse glow color (v2.3.0) |
+| `showSuccessAnimation` | `boolean` | `false` | Show checkmark animation on toggle (v2.3.0) |
+| `showErrorAnimation` | `boolean` | `false` | Show shake animation on error (v2.3.0) |
+| `successDuration` | `number` | `1500` | Duration of success animation in ms (v2.3.0) |
+| `hapticFeedback` | `boolean` | `false` | Enable vibration on mobile (v2.3.0) |
+| `hapticPattern` | `'light' \| 'medium' \| 'heavy' \| number[]` | `'light'` | Haptic vibration pattern (v2.3.0) |
+| `skeleton` | `boolean` | `false` | Show skeleton loading state (v2.3.0) |
+| `skeletonAnimation` | `'shimmer' \| 'pulse' \| 'wave'` | `'shimmer'` | Skeleton animation type (v2.3.0) |
+| `tooltip` | `string` | `''` | Tooltip text to display on hover (v2.3.0) |
+| `tooltipPosition` | `'top' \| 'bottom' \| 'left' \| 'right'` | `'top'` | Tooltip position (v2.3.0) |
+| `tooltipDelay` | `number` | `300` | Delay before showing tooltip in ms (v2.3.0) |
 
 ## Accessibility
 
@@ -468,7 +580,19 @@ MIT © [Ishan Karunaratne](https://github.com/ishansasika)
 
 ## Changelog
 
-### Version 2.2.0 (Latest)
+### Version 2.3.0 (Latest)
+
+**New Features** - Enhanced animations and user feedback:
+
+- 💫 **Pulse Animation**: Draw attention with subtle/normal/strong glow effects
+- ✅ **Success Animation**: Checkmark animation on successful toggle
+- 📳 **Haptic Feedback**: Vibration patterns on mobile devices
+- 💀 **Skeleton Loading**: Shimmer/pulse/wave loading placeholders
+- 💬 **Tooltip Support**: Built-in tooltips with 4 positions
+- 🎨 Custom pulse colors and animation durations
+- 📱 Custom haptic vibration patterns
+
+### Version 2.2.0
 
 **New Features** - Enhanced mobile experience and theming:
 
