@@ -23,4 +23,7 @@ jobs:
           credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SVELTE_TOGGLE_SWITCH }}
 
       - name: Deploy to Firebase Hosting
-        run: npx firebase-tools@latest deploy --only hosting --project svelte-toggle-switch --non-interactive
+        run: |
+          npx firebase-tools@latest deploy --only hosting --project svelte-toggle-switch --non-interactive 2>&1 | tee /tmp/firebase.log || {
+            grep -q "current active version" /tmp/firebase.log && echo "Live channel already up to date" || { cat /tmp/firebase.log; exit 1; }
+          }
