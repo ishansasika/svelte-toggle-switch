@@ -3,7 +3,7 @@
 	import ComponentPlayground from '$components/playground/ComponentPlayground.svelte';
 	import SEO from '$components/common/SEO.svelte';
 
-	export let data: PageData;
+	let { data }: { data: PageData } = $props();
 </script>
 
 <SEO
