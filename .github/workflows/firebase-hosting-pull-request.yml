@@ -19,10 +19,9 @@ jobs:
       - name: Install and build demo
         run: cd demo && npm i && npm run build
 
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
+      - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SVELTE_TOGGLE_SWITCH }}
-
-      - name: Deploy Preview to Firebase Hosting
-        run: npx firebase-tools@latest hosting:channel:deploy pr-${{ github.event.number }} --project svelte-toggle-switch --expires 7d --non-interactive
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SVELTE_TOGGLE_SWITCH }}
+          projectId: svelte-toggle-switch
+          channelId: pr-${{ github.event.number }}
