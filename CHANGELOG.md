@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2026-06-29
+
+### Breaking Changes
+- **Svelte 5 Runes**: Component migrated to `$props()`, `$state()`, `$derived()`, `$effect()` — internal upgrade, consumer prop API unchanged
+- **Event API**: `on:change`, `on:focus`, `on:blur` replaced with `onchange`, `onfocus`, `onblur` callback props
+  - Before: `<Switch on:change={handler} />`
+  - After: `<Switch onchange={handler} />`
+
+### Added
+- **Neon design variant** (`design="neon"`): Cyberpunk-style glow toggle with color-matched neon bloom; works with all 9 color schemes; best with `darkMode`
+- **Flip design variant** (`design="flip"`): 3D card that rotates 180° on Y-axis; `flipFrontContent` and `flipBackContent` props for custom face text
+- **Pill design variant** (`design="pill"`): Binary segmented control with two connected pill buttons; uses existing `onText`/`offText`
+- **Drag momentum** (`dragMomentum: boolean`): Thumb follows pointer during drag; snaps ON/OFF based on velocity (>0.3px/ms) or distance (>20px)
+- **Long press** (`longPress: boolean`, `longPressDuration: number`): Animated SVG progress ring around thumb; fires toggle after hold duration; cancels on early release
+- **Confirm toggle** (`confirmToggle: boolean`, `confirmMessage: string`, `onconfirm: () => Promise<boolean>`): Pending state with amber pulse; inline Yes/No prompt when no async callback
+- **TypeScript barrel export**: `src/lib/index.ts` exports `Switch` component and `SwitchProps` type interface
+- **Neon color map**: Per-scheme saturated neon glow colors
+
+### Changed
+- All DOM event handlers updated to Svelte 5 syntax (`on:click` → `onclick`, etc.)
+- `commitToggle()` extracted as shared helper used by all interaction modes
+- `handleFocus`/`handleBlur` renamed to `handleFocusEvent`/`handleBlurEvent` (internal)
+
+### Technical
+- Removed `createEventDispatcher` — replaced with typed callback props
+- `$:` reactive statements replaced with `$derived()` and `$effect()`
+- `let` mutable state replaced with `$state()`; `export let` with `$props()`
+- `src/main.js` updated to use Svelte 5 `mount()` API
+
 ## [2.3.1] - 2026-01-16
 
 ### Fixed

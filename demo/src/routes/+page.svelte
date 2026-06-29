@@ -1,18 +1,21 @@
 <script lang="ts">
 	import Switch from '@switch/Switch.svelte';
 
-	let demoValue = false;
+	let demoValue = $state(false);
+	let neonDemo = $state(false);
+	let flipDemo = $state(false);
+	let pillDemo = $state(false);
 
 	const features = [
 		{
 			icon: '🎨',
-			title: '5 Design Variants',
-			description: 'Slider/iOS, Inner text, Modern, Material, Multi-option designs'
+			title: '8 Design Variants',
+			description: 'Slider/iOS, Inner, Modern, Material, Multi, Neon, Flip, Pill'
 		},
 		{
 			icon: '🌈',
-			title: '6 Color Schemes',
-			description: 'Beautiful pre-built themes: blue, green, red, purple, orange, pink'
+			title: '9 Color Schemes',
+			description: 'Blue, green, red, purple, orange, pink, yellow, indigo, teal + custom'
 		},
 		{
 			icon: '📏',
@@ -20,14 +23,24 @@
 			description: 'From XS to XL, or custom sizes for perfect fit'
 		},
 		{
-			icon: '🎭',
-			title: 'Custom Icons',
-			description: 'Use any emoji or text as on/off icons'
+			icon: '🌙',
+			title: 'Dark Mode + Gradients',
+			description: 'Auto dark mode detection, 5 gradient presets, RTL support'
 		},
 		{
-			icon: '⚙️',
-			title: 'Highly Customizable',
-			description: 'Colors, animations, shadows, outlines, and more'
+			icon: '📱',
+			title: 'Touch & Drag',
+			description: 'Swipe-to-toggle, drag momentum, haptic feedback'
+		},
+		{
+			icon: '🔒',
+			title: 'Confirm to Toggle',
+			description: 'Async confirmation callback or inline Yes/No prompt'
+		},
+		{
+			icon: '⏳',
+			title: 'Long Press',
+			description: 'Animated progress ring — prevents accidental toggles'
 		},
 		{
 			icon: '♿',
@@ -35,14 +48,9 @@
 			description: 'ARIA labels, keyboard navigation, screen reader support'
 		},
 		{
-			icon: '📱',
-			title: 'Multi-Option Mode',
-			description: 'Segmented control with multiple choices'
-		},
-		{
 			icon: '🎯',
 			title: 'TypeScript First',
-			description: 'Full TypeScript support with type definitions'
+			description: 'Full SwitchProps type + Svelte 5 runes throughout'
 		}
 	];
 </script>
@@ -60,8 +68,8 @@
 	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
 		<h1 class="text-4xl md:text-5xl font-bold mb-6">Svelte Toggle Switch</h1>
 		<p class="text-lg md:text-xl mb-8 max-w-2xl mx-auto">
-			A comprehensive, accessible toggle switch component for Svelte applications. Five design
-			variants, six color themes, and extensive customization options.
+			A comprehensive, accessible toggle switch component for Svelte applications. Eight design
+			variants, nine color themes, Svelte 5 runes, and powerful interaction modes.
 		</p>
 
 		<!-- Live Demo -->
@@ -122,6 +130,43 @@
 				<div class="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto">
 					<pre class="text-sm">{`<script${'>'}\n  import Switch from 'svelte-toggle-switch';\n\n  let value = false;\n</${'script'}>\n\n<Switch bind:value label="Enable notifications" />`}</pre>
 				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- v3.0.0 New Variants Showcase -->
+<section class="bg-gradient-to-br from-gray-900 to-gray-800 py-20">
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+		<div class="text-center mb-12">
+			<span class="inline-block bg-purple-600 text-white text-xs font-semibold px-3 py-1 rounded-full mb-4">v3.0.0</span>
+			<h2 class="text-3xl font-bold text-white mb-4">3 New Design Variants</h2>
+			<p class="text-gray-400 max-w-2xl mx-auto">Neon glow, 3D card flip, and binary pill button — all with the same powerful API.</p>
+		</div>
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+			<div class="bg-gray-800 rounded-2xl p-8 text-center border border-gray-700">
+				<h3 class="text-white font-semibold mb-6">Neon</h3>
+				<div class="flex justify-center mb-4">
+					<Switch design="neon" colorScheme="blue" bind:value={neonDemo} darkMode={true} />
+				</div>
+				<p class="text-gray-400 text-sm mb-2">Cyberpunk glow with color-matched bloom</p>
+				<code class="text-purple-400 text-xs">design="neon"</code>
+			</div>
+			<div class="bg-gray-800 rounded-2xl p-8 text-center border border-gray-700">
+				<h3 class="text-white font-semibold mb-6">Flip</h3>
+				<div class="flex justify-center mb-4">
+					<Switch design="flip" colorScheme="green" bind:value={flipDemo} />
+				</div>
+				<p class="text-gray-400 text-sm mb-2">3D card flip with custom face content</p>
+				<code class="text-purple-400 text-xs">design="flip"</code>
+			</div>
+			<div class="bg-gray-800 rounded-2xl p-8 text-center border border-gray-700">
+				<h3 class="text-white font-semibold mb-6">Pill</h3>
+				<div class="flex justify-center mb-4">
+					<Switch design="pill" colorScheme="purple" bind:value={pillDemo} />
+				</div>
+				<p class="text-gray-400 text-sm mb-2">Binary segmented control with pill buttons</p>
+				<code class="text-purple-400 text-xs">design="pill"</code>
 			</div>
 		</div>
 	</div>

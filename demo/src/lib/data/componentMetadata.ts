@@ -5,7 +5,7 @@ export const SWITCH_METADATA: ComponentMetadata = {
 	id: 'switch',
 	name: 'Switch',
 	description:
-		'A comprehensive, accessible toggle switch component with 5 design variants, color themes, and extensive customization options',
+		'A comprehensive, accessible toggle switch component with 8 design variants, Svelte 5 runes, typed callback events, and advanced interaction modes',
 	component: Switch,
 	defaultProps: {
 		value: false,
@@ -33,7 +33,15 @@ export const SWITCH_METADATA: ComponentMetadata = {
 		required: false,
 		error: false,
 		name: '',
-		tabIndex: 0
+		tabIndex: 0,
+		// v3.0.0 new props
+		flipFrontContent: 'OFF',
+		flipBackContent: 'ON',
+		dragMomentum: false,
+		longPress: false,
+		longPressDuration: 600,
+		confirmToggle: false,
+		confirmMessage: 'Are you sure?'
 	},
 	propDefinitions: [
 		// Basic Props
@@ -42,7 +50,7 @@ export const SWITCH_METADATA: ComponentMetadata = {
 			type: 'string',
 			control: {
 				type: 'select',
-				options: ['slider', 'ios', 'inner', 'modern', 'material', 'multi']
+				options: ['slider', 'ios', 'inner', 'modern', 'material', 'multi', 'neon', 'flip', 'pill']
 			},
 			description: 'Design variant of the switch',
 			defaultValue: 'slider',
@@ -304,6 +312,66 @@ export const SWITCH_METADATA: ComponentMetadata = {
 			description: 'Tab index for keyboard navigation',
 			defaultValue: 0,
 			category: 'advanced'
+		},
+
+		// v3.0.0 – Flip design props
+		{
+			name: 'flipFrontContent',
+			type: 'string',
+			control: { type: 'text' },
+			description: 'Content on the front (OFF) face of flip variant',
+			defaultValue: 'OFF',
+			category: 'variants'
+		},
+		{
+			name: 'flipBackContent',
+			type: 'string',
+			control: { type: 'text' },
+			description: 'Content on the back (ON) face of flip variant',
+			defaultValue: 'ON',
+			category: 'variants'
+		},
+
+		// v3.0.0 – Interaction props
+		{
+			name: 'dragMomentum',
+			type: 'boolean',
+			control: { type: 'boolean' },
+			description: 'Thumb follows pointer drag; snaps by velocity on release',
+			defaultValue: false,
+			category: 'interactions'
+		},
+		{
+			name: 'longPress',
+			type: 'boolean',
+			control: { type: 'boolean' },
+			description: 'Hold to toggle with animated progress ring',
+			defaultValue: false,
+			category: 'interactions'
+		},
+		{
+			name: 'longPressDuration',
+			type: 'number',
+			control: { type: 'number' },
+			description: 'Hold duration in ms before toggle fires',
+			defaultValue: 600,
+			category: 'interactions'
+		},
+		{
+			name: 'confirmToggle',
+			type: 'boolean',
+			control: { type: 'boolean' },
+			description: 'Require confirmation before toggling',
+			defaultValue: false,
+			category: 'interactions'
+		},
+		{
+			name: 'confirmMessage',
+			type: 'string',
+			control: { type: 'text' },
+			description: 'Message shown in inline confirm prompt',
+			defaultValue: 'Are you sure?',
+			category: 'interactions'
 		}
 	],
 	examples: [
@@ -382,6 +450,47 @@ export const SWITCH_METADATA: ComponentMetadata = {
 			name: 'Custom Icons',
 			description: 'Day/Night mode toggle',
 			props: { showIcons: true, onIcon: '🌙', offIcon: '☀️', colorScheme: 'indigo', label: 'Dark Mode' }
+		},
+		// v3.0.0 examples
+		{
+			name: 'Neon Glow',
+			description: 'Cyberpunk neon style',
+			props: { design: 'neon', colorScheme: 'blue', darkMode: true }
+		},
+		{
+			name: 'Neon Purple',
+			description: 'Neon with purple glow',
+			props: { design: 'neon', colorScheme: 'purple', darkMode: true }
+		},
+		{
+			name: 'Flip Card',
+			description: '3D card flip toggle',
+			props: { design: 'flip', colorScheme: 'green' }
+		},
+		{
+			name: 'Flip Custom Text',
+			description: 'Flip with custom face text',
+			props: { design: 'flip', colorScheme: 'orange', flipFrontContent: 'NO', flipBackContent: 'YES' }
+		},
+		{
+			name: 'Pill Control',
+			description: 'Binary pill segmented control',
+			props: { design: 'pill', colorScheme: 'purple' }
+		},
+		{
+			name: 'Long Press',
+			description: 'Hold to toggle with progress ring',
+			props: { longPress: true, longPressDuration: 800, colorScheme: 'red', label: 'Hold to toggle' }
+		},
+		{
+			name: 'Confirm Toggle',
+			description: 'Confirm before toggling',
+			props: { confirmToggle: true, confirmMessage: 'Are you sure?', colorScheme: 'orange', label: 'Critical Setting' }
+		},
+		{
+			name: 'Drag Momentum',
+			description: 'Drag thumb with momentum',
+			props: { dragMomentum: true, colorScheme: 'teal', label: 'Drag me' }
 		}
 	],
 	importPath: "import Switch from 'svelte-toggle-switch';"

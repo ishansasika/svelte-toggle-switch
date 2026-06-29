@@ -4,25 +4,31 @@ A comprehensive, accessible, and highly customizable toggle switch component for
 
 ## Features
 
-✨ **5 Design Variants**: Slider (iOS), Inner, Modern, Material, and Multi-option\
-🎨 **Multiple Color Schemes**: 9 built-in schemes + custom colors\
+✨ **8 Design Variants**: Slider (iOS), Inner, Modern, Material, Multi, Neon, Flip, Pill\
+🎨 **9 Color Schemes**: Blue, green, red, purple, orange, pink, yellow, indigo, teal + custom\
 📏 **5 Size Options**: From extra small to extra large\
 ♿ **Fully Accessible**: ARIA attributes, keyboard navigation, screen reader support\
 🔄 **State Management**: Disabled, loading, and read-only states\
 🎯 **Icon Support**: Custom icons with flexible positioning\
 ⚡ **Smooth Animations**: Customizable duration and easing\
-📦 **TypeScript**: Full TypeScript support with proper types\
+📦 **TypeScript**: `SwitchProps` type export + full Svelte 5 runes\
 🎭 **Flexible Styling**: Shadow, outline, and label positioning options\
-🌙 **Dark Mode Support**: Auto-detect system theme or manual control (v2.2.0)\
-🌈 **Gradient Colors**: 5 beautiful gradient presets + custom gradients (v2.2.0)\
-👆 **Touch Gestures**: Swipe to toggle on mobile devices (v2.2.0)\
-🌐 **RTL Support**: Full right-to-left language support (v2.2.0)\
-💫 **Pulse Animation**: Draw attention with pulsing glow effects (v2.3.0)\
-✅ **Success Animation**: Visual feedback with checkmark animation (v2.3.0)\
-📳 **Haptic Feedback**: Vibration feedback on mobile devices (v2.3.0)\
-💀 **Skeleton Loading**: Shimmer/pulse placeholders while loading (v2.3.0)\
-💬 **Tooltip Support**: Built-in tooltips with positioning (v2.3.0)\
-🚀 **Modern Stack**: Built with Svelte 5, Vite 6, and TypeScript 5
+🌙 **Dark Mode Support**: Auto-detect system theme or manual control\
+🌈 **Gradient Colors**: 5 beautiful gradient presets + custom gradients\
+👆 **Touch Gestures**: Swipe to toggle, drag momentum on mobile\
+🌐 **RTL Support**: Full right-to-left language support\
+💫 **Pulse Animation**: Draw attention with pulsing glow effects\
+✅ **Success/Error Animations**: Visual feedback with animations\
+📳 **Haptic Feedback**: Vibration feedback on mobile devices\
+💀 **Skeleton Loading**: Shimmer/pulse placeholders while loading\
+💬 **Tooltip Support**: Built-in tooltips with positioning\
+🔮 **Neon Design**: Cyberpunk glow with color-matched bloom (v3.0.0)\
+🃏 **Flip Design**: 3D card that rotates 180° on toggle (v3.0.0)\
+💊 **Pill Design**: Binary segmented control with pill buttons (v3.0.0)\
+🖱️ **Drag Momentum**: Thumb follows pointer, snaps by velocity (v3.0.0)\
+⏳ **Long Press**: Animated progress ring prevents accidental toggles (v3.0.0)\
+🔒 **Confirm Toggle**: Async callback or inline Yes/No prompt (v3.0.0)\
+🚀 **Modern Stack**: Built with Svelte 5 runes, Vite 6, and TypeScript 5
 
 ## Installation
 
@@ -51,6 +57,66 @@ pnpm add svelte-toggle-switch
 </script>
 
 <Switch bind:value={enabled} label="Enable notifications" />
+```
+
+## Migrating from v2 to v3
+
+**One breaking change:** event syntax. Update all event handlers:
+
+```svelte
+<!-- v2.x -->
+<Switch on:change={handler} on:focus={onFocus} on:blur={onBlur} />
+
+<!-- v3.0 -->
+<Switch onchange={handler} onfocus={onFocus} onblur={onBlur} />
+```
+
+All prop values, names, and defaults are unchanged.
+
+## New in v3.0.0
+
+### 🔮 Neon Design
+
+```svelte
+<Switch design="neon" colorScheme="blue" bind:value darkMode={true} />
+```
+
+### 🃏 Flip Design
+
+```svelte
+<Switch design="flip" flipFrontContent="OFF" flipBackContent="ON" bind:value />
+```
+
+### 💊 Pill Design
+
+```svelte
+<Switch design="pill" onText="ON" offText="OFF" bind:value />
+```
+
+### ⏳ Long Press
+
+```svelte
+<Switch longPress={true} longPressDuration={600} bind:value label="Hold to toggle" />
+```
+
+### 🔒 Confirm Toggle
+
+```svelte
+<script>
+  async function confirmChange() {
+    return await myDialog.confirm('Are you sure?');
+  }
+</script>
+
+<Switch confirmToggle={true} onconfirm={confirmChange} bind:value />
+<!-- Or use built-in inline prompt: -->
+<Switch confirmToggle={true} confirmMessage="Enable this?" bind:value />
+```
+
+### 🖱️ Drag Momentum
+
+```svelte
+<Switch dragMomentum={true} bind:value />
 ```
 
 ## New in v2.3.0

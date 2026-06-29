@@ -6,7 +6,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is an NPM package providing a comprehensive, accessible toggle switch component for Svelte applications. The package has been completely rewritten in version 2.0 with TypeScript support, multiple design variants, extensive customization options, and enhanced accessibility features.
 
-### Version 2.3.0 Features
+### Version 3.0.0 Features (Current)
+- **Svelte 5 Runes**: Fully migrated to `$props()`, `$state()`, `$derived()`, `$effect()` — breaking event API change (`on:change` → `onchange`)
+- **Neon Design**: Cyberpunk glow toggle with color-matched neon bloom (`design="neon"`)
+- **Flip Design**: 3D card flip 180° on toggle; `flipFrontContent`/`flipBackContent` props (`design="flip"`)
+- **Pill Design**: Binary segmented control using `onText`/`offText` labels (`design="pill"`)
+- **Drag Momentum**: Thumb tracks pointer, snaps by velocity on release (`dragMomentum`)
+- **Long Press**: SVG progress ring, fires after `longPressDuration` ms (`longPress`)
+- **Confirm Toggle**: Async `onconfirm` callback or inline Yes/No prompt (`confirmToggle`)
+- **TypeScript Barrel**: `src/lib/index.ts` exports `Switch` + `SwitchProps` type
+
+### Version 2.3.0 Features (Previous)
 - **Pulse Animation**: Attention-grabbing glow effects with subtle/normal/strong intensity
 - **Success/Error Animations**: Visual feedback with checkmark animation and shake effects
 - **Haptic Feedback**: Vibration patterns on mobile devices (light/medium/heavy/custom)
@@ -50,6 +60,9 @@ The main component is located at `src/lib/Switch.svelte`. This single component 
 - **modern**: Enhanced slider with optional track icons
 - **material**: Google Material Design inspired toggle
 - **multi**: Radio group styled as a segmented control
+- **neon**: Cyberpunk glow with color-matched neon bloom (v3.0.0)
+- **flip**: 3D card that rotates 180° on toggle; `flipFrontContent`/`flipBackContent` (v3.0.0)
+- **pill**: Binary segmented control with connected pill buttons (v3.0.0)
 
 ### Component API Design
 
@@ -172,7 +185,7 @@ The component is written in TypeScript (`<script lang="ts">`):
 - Composite project with references to `tsconfig.node.json`
 
 ### Package Configuration
-- Version 2.0.0 (major rewrite)
+- Version 3.0.0 (Svelte 5 runes + new variants + new interactions)
 - Peer dependency: Svelte 3.x, 4.x, or 5.x
 - Development dependencies all on latest versions
 - MIT licensed
@@ -185,3 +198,28 @@ The component is written in TypeScript (`<script lang="ts">`):
 4. **Accessibility First**: ARIA and keyboard support built-in, not added later
 5. **TypeScript Throughout**: Type safety for better DX and fewer runtime errors
 6. **Zero Dependencies**: No runtime dependencies beyond Svelte peer dependency
+
+
+## Git Conventions
+
+### Commit Format
+```
+feat: Add <ComponentName> component
+feat: Add <description>
+fix: Fix <description>
+docs: Update <description>
+```
+
+- One component per commit where possible
+- Use lowercase after the prefix
+- Keep messages concise and descriptive
+
+### Branch Naming
+```
+release/v{version}-{short-description}
+```
+Example: `release/v4.1.0-neon-status-particle`
+
+### Important Rules
+- **Never add `Co-Authored-By: Claude` lines** to any commit messages or PR descriptions
+- **Never include AI attribution** in commits, PRs, or any git history

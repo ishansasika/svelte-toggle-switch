@@ -48,14 +48,48 @@
 		<!-- Design Variants -->
 		<section>
 			<h2 class="text-2xl font-bold mb-4">Design Variants</h2>
-			<p class="text-gray-600 mb-4">Choose from 5 different design styles:</p>
+			<p class="text-gray-600 mb-4">Choose from 8 different design styles:</p>
 			<ul class="list-disc list-inside space-y-2 text-gray-600 mb-4">
 				<li><strong>slider/ios</strong> - Classic iOS-style toggle (default)</li>
 				<li><strong>inner</strong> - Toggle with visible ON/OFF text</li>
 				<li><strong>modern</strong> - Modern design with optional track icons</li>
 				<li><strong>material</strong> - Google Material Design inspired</li>
 				<li><strong>multi</strong> - Segmented control with multiple options</li>
+				<li><strong>neon</strong> <span class="text-purple-600 text-xs font-semibold">v3.0.0</span> - Cyberpunk glow with color-matched neon bloom</li>
+				<li><strong>flip</strong> <span class="text-purple-600 text-xs font-semibold">v3.0.0</span> - 3D card that rotates 180° on toggle (<code class="bg-gray-100 px-1 rounded">flipFrontContent</code>, <code class="bg-gray-100 px-1 rounded">flipBackContent</code>)</li>
+				<li><strong>pill</strong> <span class="text-purple-600 text-xs font-semibold">v3.0.0</span> - Binary segmented control as connected pill buttons</li>
 			</ul>
+		</section>
+
+		<!-- v3.0.0 Interaction Features -->
+		<section>
+			<h2 class="text-2xl font-bold mb-4">v3.0.0 Interaction Features</h2>
+			<div class="space-y-4">
+				<div class="bg-gray-50 rounded-lg p-4">
+					<h3 class="font-semibold text-gray-800 mb-1">Drag Momentum <code class="text-purple-600 text-sm">dragMomentum</code></h3>
+					<p class="text-gray-600 text-sm">Thumb follows the pointer during drag. On release, snaps based on velocity (&gt;0.3px/ms) or distance (&gt;20px).</p>
+				</div>
+				<div class="bg-gray-50 rounded-lg p-4">
+					<h3 class="font-semibold text-gray-800 mb-1">Long Press <code class="text-purple-600 text-sm">longPress</code> <code class="text-purple-600 text-sm">longPressDuration</code></h3>
+					<p class="text-gray-600 text-sm">Hold to toggle with an animated SVG progress ring. Fires after <code>longPressDuration</code> ms (default 600). Releasing early cancels.</p>
+				</div>
+				<div class="bg-gray-50 rounded-lg p-4">
+					<h3 class="font-semibold text-gray-800 mb-1">Confirm Toggle <code class="text-purple-600 text-sm">confirmToggle</code> <code class="text-purple-600 text-sm">onconfirm</code></h3>
+					<p class="text-gray-600 text-sm">Requires confirmation before toggling. Pass an async <code>onconfirm</code> callback returning <code>Promise&lt;boolean&gt;</code>, or use the built-in inline Yes/No prompt via <code>confirmMessage</code>.</p>
+				</div>
+			</div>
+		</section>
+
+		<!-- Migration Guide -->
+		<section>
+			<h2 class="text-2xl font-bold mb-4">Migrating from v2 to v3</h2>
+			<div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+				<p class="font-semibold text-amber-800 mb-2">One breaking change: event syntax</p>
+				<p class="text-amber-700 text-sm mb-3">Update all event handlers — prop names and defaults are unchanged.</p>
+				<div class="bg-gray-900 text-gray-100 p-4 rounded text-sm overflow-x-auto">
+					<pre>{`<!-- v2.x -->\n<Switch on:change={handler} on:focus={onFocus} on:blur={onBlur} />\n\n<!-- v3.0 -->\n<Switch onchange={handler} onfocus={onFocus} onblur={onBlur} />`}</pre>
+				</div>
+			</div>
 		</section>
 
 		<!-- Multi-Option Example -->
